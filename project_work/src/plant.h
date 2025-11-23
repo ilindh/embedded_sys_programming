@@ -15,6 +15,13 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
+/* CMSIS DSP Include 
+ * Required for float32_t definition used in the prototype below 
+ */
+#include "arm_math.h"
 
+/* Function Prototypes */
+// This allows other files (like main.c) to call your plant function
+float32_t plant_response(float32_t u_in);
 
 #endif
