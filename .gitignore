@@ -1,0 +1,11 @@
+# Xilinx SDK ignore rules
+Debug/
+Release/
+.sdk/
+.metadata/
+*.o
+*.d
+*.elf
+*.bit
+*.log
+*.launch
