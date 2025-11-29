@@ -124,8 +124,8 @@ int main( void ) {
 	 * Each function behaves as if it had full control of the controller.
 	 * https://www.freertos.org/a00125.html
 	 */
-	xTaskCreate(PI_controller, 					// The function that implements the task.
-					"PI-controller", 			// Text name for the task, provided to assist debugging only.
+	xTaskCreate(control_loop, 					// The function that implements the task.
+					"Controller loop", 			// Text name for the task, provided to assist debugging only.
 					4096, 						// The stack allocated to the task.
 					NULL, 						// The task parameter is not used, so set to NULL.
 					tskIDLE_PRIORITY+10,		// The task runs at the idle priority. Higher number means higher priority.
