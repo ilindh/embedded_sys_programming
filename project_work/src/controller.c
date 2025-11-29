@@ -28,22 +28,24 @@ float h = 0.1;
 /// @brief This is the Controller Task function
 void control_loop(float Kp, float Ki, float Kd, float u_ref) {
 
-	static u_meas, PI_out;
+	static float u_meas, PI_out;
+
+	TickType_t xLastWakeTime, xTime1, xTime2, xExecutionTime;
 
 	// Necessary forever loop. A thread should never be able to exit!
 	for( ;; ) { // Same as while(1) or while(true)
 
-		xTime1 = xTaskGetTickCount();
+		uint32_t xTime1 = xTaskGetTickCount();
 		xil_printf( "Control Loop Interval: %d \r\n", xTime1);
 
 		u_meas = plant_response(PI_out);
 
-		PI_out = PI_controller(u_meas, u_ref);
+		PI_out = PI_controller(u_meas, u_ref, Kd, Ki, Kp);
 
 		xil_printf( "Converter voltage [V]: %d \r\n", u_meas);
 		xil_printf( "PI output [V]: %d \r\n", PI_out);
 
-		vTaskDelayUntil(&xLastWakeTime, xPeriod);
+		vTaskDelayUntil(&xLastWakeTime, xTime1);
 	}
 
 }
@@ -51,13 +53,13 @@ void control_loop(float Kp, float Ki, float Kd, float u_ref) {
 /// @brief This is the PID controller function
 /// @param Kp (proportional), Ki (integrative), Kd (derivative), ref (?), y (?) h (?)
 /// @return PI controller output
-float PI_controller(float u_meas, float u_ref) {
+float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 
-	static float32_t err, err_prev, yi_prev, yd_prev;
+	static float err, err_prev, yi_prev, yd_prev;
 
 	//m‰‰rit‰ viel‰ tarkempi arvo!!
-	static float32_t windupLimit =10;
-	static float32_t yp, yi, yd, PI_out;
+	static float windupLimit =10;
+	static float yp, yi, yd, PI_out;
 
 	float u_max = 400;
 	float u_min = 0;
@@ -81,7 +83,7 @@ float PI_controller(float u_meas, float u_ref) {
 	}
 
 	// Saturate the output of the controller
-	unsat_out = yp + yi + yd;
+	float unsat_out = yp + yi + yd;
 
 	PI_out = unsat_out; //toimiiko if tsydeemi t‰ll‰ en oo yht‰‰ varma??
 

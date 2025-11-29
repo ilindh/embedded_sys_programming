@@ -137,6 +137,3 @@ int main( void ) {
 
 	for( ;; );
 }
-
-
-

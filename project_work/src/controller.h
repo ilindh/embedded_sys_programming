@@ -18,6 +18,7 @@
 #include "zynq_registers.h"
 
 
-extern void PI_controller(float u_ref);
+void control_loop(float Kp, float Ki, float Kd, float u_ref);
+float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp);
 
 #endif

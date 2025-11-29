@@ -22,6 +22,6 @@
 
 /* Function Prototypes */
 // This allows other files (like main.c) to call your plant function
-float32_t plant_response(float32_t u_in);
+float plant_response(float u_in);
 
 #endif
