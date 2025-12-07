@@ -22,6 +22,6 @@
 
 /* Function Prototypes */
 // This allows other files (like main.c) to call your plant function
-float plant_response(float u_in);
+void plant_model_task(void *pvParameters);
 
 #endif

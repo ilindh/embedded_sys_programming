@@ -18,7 +18,7 @@
 #include "zynq_registers.h"
 
 
-void control_loop(float Kp, float Ki, float Kd, float u_ref);
+void control_task(void *pvParameters);
 float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp);
-
+void PWM_control(void);
 #endif

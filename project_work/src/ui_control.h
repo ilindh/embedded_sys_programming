@@ -1,5 +1,5 @@
-#ifndef CONTROLLER_H
-#define CONTROLLER_H
+#ifndef UI_CONTROL_H
+#define UI_CONTROL_H
 
 
 /* FreeRTOS includes. */
@@ -15,6 +15,6 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
-void ui_control_funtcion();
+void ui_control_task(void *pvParameters);
 
 #endif

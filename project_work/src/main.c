@@ -107,16 +107,25 @@
 
 // Custom header files:
 #include "controller.h"
+#include "plant.h"
 #include "ui_control.h"
+#include "system_params.h"
 #include "zynq_registers.h"
 
+
+SemaphoreHandle_t control_out_MUTEX;
+SemaphoreHandle_t u_out_plant_MUTEX;
+
+
 int main( void ) {
-	  AXI_BTN_TRI |= 0xF; // Set direction for buttons 0..3 ,  0 means output, 1 means input
-      AXI_LED_TRI = ~0xF;			// Set direction for bits 0-3 to output for the LEDs
 
+	  // AXI_BTN_TRI |= 0xF; 		// Set direction for buttons 0..3 ,  0 means output, 1 means input
+      AXI_LED_TRI = ~0xF;		// Set direction for bits 0-3 to output for the LEDs
 
-	xil_printf( "Control System starting.\r\n" );
-	xil_printf( "Control System starting..\r\n" );
+      // Create MUTEX instances.
+      control_out_MUTEX = xSemaphoreCreateMutex();
+      u_out_plant_MUTEX = xSemaphoreCreateMutex();
+
 	xil_printf( "Control System starting...\r\n" );
 
 	/**
@@ -124,13 +133,27 @@ int main( void ) {
 	 * Each function behaves as if it had full control of the controller.
 	 * https://www.freertos.org/a00125.html
 	 */
-	xTaskCreate(control_loop, 					// The function that implements the task.
+	xTaskCreate(control_task, 					// The function that implements the task.
 					"Controller loop", 			// Text name for the task, provided to assist debugging only.
 					4096, 						// The stack allocated to the task.
 					NULL, 						// The task parameter is not used, so set to NULL.
-					tskIDLE_PRIORITY+10,		// The task runs at the idle priority. Higher number means higher priority.
+					tskIDLE_PRIORITY+3,			// The task runs at the idle priority. Higher number means higher priority.
 					NULL );
 
+	xTaskCreate(plant_model_task, 					// The function that implements the task.
+					"Plant model loop", 		// Text name for the task, provided to assist debugging only.
+					4096, 						// The stack allocated to the task.
+					NULL, 						// The task parameter is not used, so set to NULL.
+					tskIDLE_PRIORITY+2,			// The task runs at the idle priority. Higher number means higher priority.
+					NULL );
+
+	/* xTaskCreate(ui_control_task, 					// The function that implements the task.
+					"UI control loop", 			// Text name for the task, provided to assist debugging only.
+					4096, 						// The stack allocated to the task.
+					NULL, 						// The task parameter is not used, so set to NULL.
+					tskIDLE_PRIORITY+1,			// The task runs at the idle priority. Higher number means higher priority.
+					NULL );
+	*/
 	// Start the tasks and timer running.
 	// https://www.freertos.org/a00132.html
 	vTaskStartScheduler();

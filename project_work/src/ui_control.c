@@ -15,33 +15,36 @@
 #include "xil_types.h"
 
 #include "ui_control.h"
+#include "system_params.h"
 
 /* LUT includes. */
 #include "zynq_registers.h"
 
 
-void ui_control_function(){
-
+void ui_control_task(void *pvParameters){
 
 	int state = 0;
+	for(;;){
 
-	switch(state){
+		switch(state){
 
-		case 0:
+			case 0:
 
-			xil_printf( "State 0 Looped!\r\n" );
-			break;
+				xil_printf( "State 0 Looped!\r\n" );
+				break;
 
-		case 1:
+			case 1:
 
-			xil_printf( "State 1 Looped!\r\n" );
-			break;
+				xil_printf( "State 1 Looped!\r\n" );
+				break;
 
-		case 3:
+			case 3:
 
-			xil_printf( "State 2 Looped!\r\n" );
-			break;
+				xil_printf( "State 2 Looped!\r\n" );
+				break;
 
+		}
 	}
+
 
 }

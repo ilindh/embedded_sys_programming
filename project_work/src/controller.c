@@ -18,34 +18,93 @@
 #include "system_params.h"
 /* LUT includes. */
 #include "zynq_registers.h"
-#include "system_params.h"
+
+// Variables:
+
+// Step size for integration. Mathced with "sampling interval"
+float h = (float)controller_interval / 1000.0;
 
 TickType_t xTaskGetTickCount( void );
 
-float u_old = 0;
-float h = 0.1;
+// Global variables for input and output.
+volatile float u_out_controller;
+
+static int print_interval = 10;
+static int i_print = 0;
+
+/// @brief This function allows for retrieving the data with MUTEXes implemented.
+static float getCurrentVoltage(void){
+
+	if(xSemaphoreTake(u_out_plant_MUTEX, 5) == pdTRUE ) {
+		/* The mutex was successfully obtained so the shared resource can be accessed safely. */
+		float current_u_out = u_out_plant;
+		xSemaphoreGive(u_out_plant_MUTEX);
+		return current_u_out;
+		/* Access to the shared resource is complete, so the mutex is returned. */
+
+	 } else {
+		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
+
+		 xil_printf( "Error while retreiving the plant voltage.");
+		 return 0;
+	 }
+}
+
+/// @brief This function allows for retrieving the data with MUTEXes implemented.
+static void setCurrentVoltage(float u_out){
+
+	if( xSemaphoreTake(control_out_MUTEX, 5) == pdTRUE ) {
+		/* The mutex was successfully obtained so the shared resource can be accessed safely. */
+		u_out_controller = u_out;
+		xSemaphoreGive(control_out_MUTEX);
+		/* Access to the shared resource is complete, so the mutex is returned. */
+
+	 } else {
+		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
+		 xil_printf( "Error while setting the controller output.");
+	 }
+}
+
+
 
 /// @brief This is the Controller Task function
-void control_loop(float Kp, float Ki, float Kd, float u_ref) {
+void control_task(void *pvParameters) {
 
-	static float u_meas, PI_out;
+	TickType_t xLastWakeTime;
+	const TickType_t xInterval = pdMS_TO_TICKS(controller_interval);
 
-	TickType_t xLastWakeTime, xTime1, xTime2, xExecutionTime;
+	// TEMPORARY fixed input.
+	float Kp = 1;
+	float Ki = 0.70;
+	float Kd = 0.002;
+
+	float u_ref = 100;
+
+	xLastWakeTime = xTaskGetTickCount();
 
 	// Necessary forever loop. A thread should never be able to exit!
 	for( ;; ) { // Same as while(1) or while(true)
 
-		uint32_t xTime1 = xTaskGetTickCount();
-		xil_printf( "Control Loop Interval: %d \r\n", xTime1);
 
-		u_meas = plant_response(PI_out);
 
-		PI_out = PI_controller(u_meas, u_ref, Kd, Ki, Kp);
+		float u_meas = getCurrentVoltage();
 
-		xil_printf( "Converter voltage [V]: %d \r\n", u_meas);
-		xil_printf( "PI output [V]: %d \r\n", PI_out);
+		setCurrentVoltage(PI_controller(u_meas, u_ref, Kd, Ki, Kp));
 
-		vTaskDelayUntil(&xLastWakeTime, xTime1);
+		// Print only after print_interval
+		if(i_print == print_interval){
+
+			i_print = 0;
+			xil_printf("\n");
+			xil_printf( "Control Loop Interval: %d \r\n", (int)xLastWakeTime);
+			xil_printf( "Target Voltage: %d \r\n", (int)u_ref);
+			xil_printf( "Converter voltage [V]: %d \r\n", (int)u_meas);
+			xil_printf( "PI output [V]: %d \r\n", (int)u_out_controller);
+		}
+
+		i_print++;
+
+		vTaskDelayUntil(&xLastWakeTime, xInterval);
 	}
 
 }
@@ -58,15 +117,14 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 	static float err, err_prev, yi_prev, yd_prev;
 
 	//m‰‰rit‰ viel‰ tarkempi arvo!!
-	static float windupLimit =10;
+	static float windupLimit = 100;
 	static float yp, yi, yd, PI_out;
 
 	float u_max = 400;
 	float u_min = 0;
 
-	err = u_meas - u_ref; // Calculate the error value
-
     //  err = ref ñ y;
+	err = u_ref-u_meas; // Calculate the error value
 
 	// Calculate yp, yi ja yd
    	yp = Kp*err;
@@ -99,6 +157,12 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 	err_prev = err;
 
 	return PI_out;
+
+}
+
+
+void PWM_control(void){
+
 
 }
 
