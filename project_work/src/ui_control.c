@@ -20,7 +20,7 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
-// Button Interrput
+// Button Interrputs
 
 
 void ui_control_task(void *pvParameters){

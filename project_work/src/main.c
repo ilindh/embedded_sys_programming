@@ -112,19 +112,39 @@
 #include "system_params.h"
 #include "zynq_registers.h"
 
+// Interrupt:
+
+#include <xscugic.h>
+
 
 SemaphoreHandle_t control_out_MUTEX;
 SemaphoreHandle_t u_out_plant_MUTEX;
 
+extern XScuGic xInterruptController;
+
+// Function decalarations
+void sample_task();
+void SetupInterrupts();
+
 
 int main( void ) {
 
-	  // AXI_BTN_TRI |= 0xF; 		// Set direction for buttons 0..3 ,  0 means output, 1 means input
-      AXI_LED_TRI = ~0xF;		// Set direction for bits 0-3 to output for the LEDs
+	AXI_LED_TRI &= ~(0b1111UL);
+	AXI_BTN_TRI |= 0xF;
 
-      // Create MUTEX instances.
-      control_out_MUTEX = xSemaphoreCreateMutex();
-      u_out_plant_MUTEX = xSemaphoreCreateMutex();
+	SetupInterrupts();
+	// SetupUART();
+	// SetupUARTInterrupt();
+	SetupTimer();
+	SetupTicker();
+	SetupPushButtons();
+
+	// AXI_BTN_TRI |= 0xF; 		// Set direction for buttons 0..3 ,  0 means output, 1 means input
+	AXI_LED_TRI = ~0xF;		// Set direction for bits 0-3 to output for the LEDs
+
+	// Create MUTEX instances.
+	control_out_MUTEX = xSemaphoreCreateMutex();
+	u_out_plant_MUTEX = xSemaphoreCreateMutex();
 
 	xil_printf( "Control System starting...\r\n" );
 
@@ -160,3 +180,35 @@ int main( void ) {
 
 	for( ;; );
 }
+
+void SetupInterrupts()
+{
+	XScuGic_Config *pxGICConfig;
+
+	/* Ensure no interrupts execute while the scheduler is in an inconsistent
+	state.  Interrupts are automatically enabled when the scheduler is
+	started. */
+	portDISABLE_INTERRUPTS();
+
+	/* Obtain the configuration of the GIC. */
+	pxGICConfig = XScuGic_LookupConfig( XPAR_SCUGIC_SINGLE_DEVICE_ID );
+
+	/* Install a default handler for each GIC interrupt. */
+	XScuGic_CfgInitialize( &xInterruptController, pxGICConfig, pxGICConfig->CpuBaseAddress );
+}
+
+void sample_task() {
+	const TickType_t freq = pdMS_TO_TICKS( 500 );
+
+	// https://www.freertos.org/a00021.html#xTaskGetTickCount
+	TickType_t wakeTime = xTaskGetTickCount();  // only once initialized
+
+	for( ;; ) {
+		AXI_LED_DATA ^= 0x01;
+
+		// https://www.freertos.org/vtaskdelayuntil.html
+		vTaskDelayUntil( &wakeTime, freq );
+
+	}
+}
+
