@@ -20,9 +20,16 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
+// Button Interrput
+
 
 void ui_control_task(void *pvParameters){
 
+	TickType_t xLastWakeTime;
+	const TickType_t xInterval = pdMS_TO_TICKS(ui_interval);
+
+
+	xLastWakeTime = xTaskGetTickCount();
 	int state = 0;
 	for(;;){
 
@@ -30,21 +37,23 @@ void ui_control_task(void *pvParameters){
 
 			case 0:
 
-				xil_printf( "State 0 Looped!\r\n" );
+				// xil_printf( "State 0 Looped!\r\n" );
 				break;
 
 			case 1:
 
-				xil_printf( "State 1 Looped!\r\n" );
+				// xil_printf( "State 1 Looped!\r\n" );
 				break;
 
 			case 3:
 
-				xil_printf( "State 2 Looped!\r\n" );
+				// xil_printf( "State 2 Looped!\r\n" );
 				break;
 
-		}
-	}
+			}
 
+	vTaskDelayUntil(&xLastWakeTime, xInterval);
+
+	}
 
 }

@@ -147,13 +147,13 @@ int main( void ) {
 					tskIDLE_PRIORITY+2,			// The task runs at the idle priority. Higher number means higher priority.
 					NULL );
 
-	/* xTaskCreate(ui_control_task, 					// The function that implements the task.
+	xTaskCreate(ui_control_task, 					// The function that implements the task.
 					"UI control loop", 			// Text name for the task, provided to assist debugging only.
 					4096, 						// The stack allocated to the task.
 					NULL, 						// The task parameter is not used, so set to NULL.
 					tskIDLE_PRIORITY+1,			// The task runs at the idle priority. Higher number means higher priority.
 					NULL );
-	*/
+
 	// Start the tasks and timer running.
 	// https://www.freertos.org/a00132.html
 	vTaskStartScheduler();

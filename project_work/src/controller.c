@@ -24,13 +24,15 @@
 // Step size for integration. Mathced with "sampling interval"
 float h = (float)controller_interval / 1000.0;
 
-TickType_t xTaskGetTickCount( void );
+TickType_t xTaskGetTickCount(void);
 
 // Global variables for input and output.
 volatile float u_out_controller;
 
-static int print_interval = 10;
+static int print_interval = 5000;
 static int i_print = 0;
+
+float u_ref = 120;
 
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
 static float getCurrentVoltage(void){
@@ -46,7 +48,7 @@ static float getCurrentVoltage(void){
 		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
 
 		 xil_printf( "Error while retreiving the plant voltage.");
-		 return 0;
+		 return u_ref;
 	 }
 }
 
@@ -74,18 +76,14 @@ void control_task(void *pvParameters) {
 	const TickType_t xInterval = pdMS_TO_TICKS(controller_interval);
 
 	// TEMPORARY fixed input.
-	float Kp = 1;
-	float Ki = 0.70;
-	float Kd = 0.002;
-
-	float u_ref = 100;
+	float Kp = 10;
+	float Ki = 5;
+	float Kd = 0.00;
 
 	xLastWakeTime = xTaskGetTickCount();
 
 	// Necessary forever loop. A thread should never be able to exit!
 	for( ;; ) { // Same as while(1) or while(true)
-
-
 
 		float u_meas = getCurrentVoltage();
 
@@ -95,11 +93,15 @@ void control_task(void *pvParameters) {
 		if(i_print == print_interval){
 
 			i_print = 0;
+			/*
 			xil_printf("\n");
 			xil_printf( "Control Loop Interval: %d \r\n", (int)xLastWakeTime);
 			xil_printf( "Target Voltage: %d \r\n", (int)u_ref);
 			xil_printf( "Converter voltage [V]: %d \r\n", (int)u_meas);
-			xil_printf( "PI output [V]: %d \r\n", (int)u_out_controller);
+			xil_printf( "PI output [V]: %d \r\n", (int)u_out_controller); */
+
+			xil_printf("\n");
+			xil_printf( "Int: %d | Tgt: %d | PI: %d | Plant: %d \n\r", (int)xLastWakeTime, (int)u_ref, (int)u_out_controller, (int)u_meas);
 		}
 
 		i_print++;
@@ -117,7 +119,7 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 	static float err, err_prev, yi_prev, yd_prev;
 
 	//m‰‰rit‰ viel‰ tarkempi arvo!!
-	static float windupLimit = 100;
+	static float windupLimit = 200;
 	static float yp, yi, yd, PI_out;
 
 	float u_max = 400;
@@ -129,7 +131,7 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 	// Calculate yp, yi ja yd
    	yp = Kp*err;
    	yi = Ki*(h/2)*(err+err_prev) + yi_prev;
-  	yd = Kd*(2/h)*(err-err_prev) - yd_prev;
+  	yd = Kd*(err-err_prev) / h;
 
 
 	// Anti-winding integraattorille (https://codepal.ai/code-generator/query/MjweSyOx/pid-regulator-with-anti-windup)

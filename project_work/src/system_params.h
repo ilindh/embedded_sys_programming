@@ -17,6 +17,7 @@
 
 // Task loop intervals in ms
 #define controller_interval 1
+#define ui_interval 10
 #define plant_interval 1
 
 extern volatile float Ki;
@@ -27,5 +28,6 @@ extern SemaphoreHandle_t u_out_plant_MUTEX;
 
 extern volatile float u_out_plant;
 extern volatile float u_out_controller;
+
 
 #endif
