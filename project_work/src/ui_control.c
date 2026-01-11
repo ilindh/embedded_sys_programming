@@ -20,36 +20,52 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
-// Button Interrputs
+// LED Definition masks for UI feedback of system mode (M.H)
+#define LED_MODE_CONFIG 	0X01	// LED0
+#define LED_MODE_IDLE 		0X02   	// LED1
+#define LED_MODE_MODULATION 0X04 	// LED2 ? tarkista onko ok led 2 tuolla 0x04
 
+// global vartiable to ttrack current system mode (R.M)
+volatile SystemMode_t current_system_mode = MODE_CONFIG;
 
 void ui_control_task(void *pvParameters){
 
-	TickType_t xLastWakeTime;
 	const TickType_t xInterval = pdMS_TO_TICKS(ui_interval);
+	TickType_t xLastWakeTime;
 
 
 	xLastWakeTime = xTaskGetTickCount();
-	int state = 0;
+
+	// local variable to hold system mode
+	SystemMode_t ui_local_mode = MODE_CONFIG;
+
+	AXI_LED_TRI = 0; // Set all LEDs as output
+
 	for(;;){
 
-		switch(state){
+		// Copy global mode to local mode
+		ui_local_mode = current_system_mode;
 
-			case 0:
+		// switch case to handle different modes
+		switch(ui_local_mode){
 
-				// xil_printf( "State 0 Looped!\r\n" );
+			case MODE_CONFIG:
+
+				xil_printf("Configuration Mode\r\n");
+				AXI_LED_DATA = LED_MODE_CONFIG; // Turn on LED0
 				break;
 
-			case 1:
+			case MODE_IDLE:
 
-				// xil_printf( "State 1 Looped!\r\n" );
+				xil_printf("Idle Mode\r\n");
+				AXI_LED_DATA = LED_MODE_IDLE; // Turn on LED1
 				break;
 
-			case 3:
+			case MODE_MODULATION:
 
-				// xil_printf( "State 2 Looped!\r\n" );
+				xil_printf("Modulation Mode\r\n");
+				AXI_LED_DATA = LED_MODE_MODULATION; // Turn on LED2
 				break;
-
 			}
 
 	vTaskDelayUntil(&xLastWakeTime, xInterval);

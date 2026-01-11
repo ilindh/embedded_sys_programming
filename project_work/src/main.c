@@ -140,7 +140,7 @@ int main( void ) {
 	SetupPushButtons();
 
 	// AXI_BTN_TRI |= 0xF; 		// Set direction for buttons 0..3 ,  0 means output, 1 means input
-	AXI_LED_TRI = ~0xF;		// Set direction for bits 0-3 to output for the LEDs
+	// AXI_LED_TRI = ~0xF;		// Set direction for bits 0-3 to output for the LEDs !!! REMOVED BY (R.M and M.H) done in ui_control.c
 
 	// Create MUTEX instances.
 	control_out_MUTEX = xSemaphoreCreateMutex();
