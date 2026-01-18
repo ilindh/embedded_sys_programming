@@ -120,15 +120,20 @@
 SemaphoreHandle_t control_out_MUTEX;
 SemaphoreHandle_t u_out_plant_MUTEX;
 
+TaskHandle_t control_task_handle;
+TaskHandle_t plant_model_task_handle;
+TaskHandle_t ui_control_task_handle;
+
+
 extern XScuGic xInterruptController;
 
 // Function decalarations
-void sample_task();
 void SetupInterrupts();
 
 
 int main( void ) {
 
+	// Set LEDs as output
 	AXI_LED_TRI &= ~(0b1111UL);
 	AXI_BTN_TRI |= 0xF;
 
@@ -158,21 +163,25 @@ int main( void ) {
 					4096, 						// The stack allocated to the task.
 					NULL, 						// The task parameter is not used, so set to NULL.
 					tskIDLE_PRIORITY+3,			// The task runs at the idle priority. Higher number means higher priority.
-					NULL );
+					&control_task_handle);
+
+	vTaskSuspend(control_task_handle);
 
 	xTaskCreate(plant_model_task, 					// The function that implements the task.
 					"Plant model loop", 		// Text name for the task, provided to assist debugging only.
 					4096, 						// The stack allocated to the task.
 					NULL, 						// The task parameter is not used, so set to NULL.
 					tskIDLE_PRIORITY+2,			// The task runs at the idle priority. Higher number means higher priority.
-					NULL );
+					&plant_model_task_handle );
+
+	// vTaskSuspend(plant_model_task_handle);
 
 	xTaskCreate(ui_control_task, 					// The function that implements the task.
 					"UI control loop", 			// Text name for the task, provided to assist debugging only.
 					4096, 						// The stack allocated to the task.
 					NULL, 						// The task parameter is not used, so set to NULL.
 					tskIDLE_PRIORITY+1,			// The task runs at the idle priority. Higher number means higher priority.
-					NULL );
+					&ui_control_task_handle );
 
 	// Start the tasks and timer running.
 	// https://www.freertos.org/a00132.html
@@ -195,20 +204,5 @@ void SetupInterrupts()
 
 	/* Install a default handler for each GIC interrupt. */
 	XScuGic_CfgInitialize( &xInterruptController, pxGICConfig, pxGICConfig->CpuBaseAddress );
-}
-
-void sample_task() {
-	const TickType_t freq = pdMS_TO_TICKS( 500 );
-
-	// https://www.freertos.org/a00021.html#xTaskGetTickCount
-	TickType_t wakeTime = xTaskGetTickCount();  // only once initialized
-
-	for( ;; ) {
-		AXI_LED_DATA ^= 0x01;
-
-		// https://www.freertos.org/vtaskdelayuntil.html
-		vTaskDelayUntil( &wakeTime, freq );
-
-	}
 }
 
