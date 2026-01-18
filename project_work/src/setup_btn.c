@@ -12,45 +12,63 @@ void ButtonTimerCallback(TimerHandle_t xTimer);
 
 
 void SetupPushButtons() {
-	XGpio_Initialize(&BTNS_SWTS, BUTTONS_AXI_ID);
-	XGpio_InterruptEnable(&BTNS_SWTS, 0xF);
-	XGpio_InterruptGlobalEnable(&BTNS_SWTS);
+    int Status;
+    
+    // 1. Initialize GPIO
+    XGpio_Initialize(&BTNS_SWTS, BUTTONS_AXI_ID);
+    
+    // 2. Setup GIC Connect (Connecting the button handler to the GIC)
+    u32 Button_Intr_ID = XPAR_FABRIC_AXI_GPIO_SW_BTN_IP2INTC_IRPT_INTR; 
 
-	Xil_ExceptionInit();
+    Status = XScuGic_Connect(&xInterruptController, Button_Intr_ID,
+                            (Xil_ExceptionHandler)PushButtons_Intr_Handler,
+                            (void *)&BTNS_SWTS); // Pass the GPIO instance as data
 
-	// Enables interrupts
-	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,
-								(Xil_ExceptionHandler) XScuGic_InterruptHandler,
-								&xInterruptController);
+    if (Status != XST_SUCCESS) {
+        xil_printf("GIC Connect Failed\r\n");
+        return;
+    }
 
-	// Defines the PushButtons_Intr_Handler as the IRQ (standard Interrupt Request) interrupt handler.
-	// Changed to IRQ from FIQ for a more standard interrupt handling approach for push-buttons. M.H.
-	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,
-								(Xil_ExceptionHandler) PushButtons_Intr_Handler,
-								&xInterruptController);
-	Xil_ExceptionEnableMask(XIL_EXCEPTION_FIQ);
+    // 3. Enable the interrupt input at the GPIO Core
+    // Enable Channel 2 interrupt (Bit 1 = Channel 2, Bit 0 = Channel 1). 
+    // 0xF is okay but 0x2 is more precise if buttons are on Ch2.
+    XGpio_InterruptEnable(&BTNS_SWTS, 0xF); 
+    XGpio_InterruptGlobalEnable(&BTNS_SWTS);
 
-	// Add a timer for button debounching (period of 20 ms, pdFalse=runs once)
-	xButtonTimer = xTimerCreate( "Debounce", pdMS_TO_TICKS(20), pdFALSE, (void *)0, ButtonTimerCallback);
+    // 4. Enable the interrupt input at the GIC
+    XScuGic_Enable(&xInterruptController, Button_Intr_ID);
+
+    // 5. Register the GIC handler to the CPU (Only do this ONCE)
+    Xil_ExceptionInit();
+    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_IRQ_INT,
+                                (Xil_ExceptionHandler) XScuGic_InterruptHandler,
+                                &xInterruptController);
+
+    // 6. Enable Interrupts on the CPU
+    // Use Xil_ExceptionEnable() for standard IRQ, not EnableMask(FIQ)
+    Xil_ExceptionEnable(); 
+
+    // Create debounce timer
+    xButtonTimer = xTimerCreate("Debounce", pdMS_TO_TICKS(20), pdFALSE, (void *)0, ButtonTimerCallback);
 }
 
 /// @brief Disable button interrups, clear interrupt flag, and start debounce timer
 /// @param data 
 void PushButtons_Intr_Handler(void *data) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    XGpio *GpioPtr = (XGpio *)data; // Cast the data pointer back to XGpio
 
-    // Disable Button Interrupts immediately to ignore the mechanical bounce
-    XGpio_InterruptDisable(&BTNS_SWTS, 0xF);
+    // Disable Button Interrupts
+    XGpio_InterruptDisable(GpioPtr, 0xF);
 
-    // This clears the interrupt flag so the GIC (generic interrupt controller) is happy
-    XGpio_InterruptClear(&BTNS_SWTS, 0xF);
+    // Clear the interrupt
+    XGpio_InterruptClear(GpioPtr, 0xF);
 
-    // This schedules the "ButtonTimerCallback" to run in 20ms.
+    // Start Timer
     if( xButtonTimer != NULL ) {
         xTimerStartFromISR( xButtonTimer, &xHigherPriorityTaskWoken );
     }
 
-    // Force a context switch if the timer task is high priority
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
