@@ -51,19 +51,26 @@ void ui_control_task(void *pvParameters){
 
 			case MODE_CONFIG:
 
-				xil_printf("Configuration Mode\r\n");
+				// Stop controller task
+				vTaskSuspend(control_task_handle);
+				// xil_printf("Configuration Mode\r\n");
 				AXI_LED_DATA = LED_MODE_CONFIG; // Turn on LED0
 				break;
 
 			case MODE_IDLE:
 
-				xil_printf("Idle Mode\r\n");
+				// Stop controller task
+				vTaskSuspend(control_task_handle);
+				// xil_printf("Idle Mode\r\n");
 				AXI_LED_DATA = LED_MODE_IDLE; // Turn on LED1
 				break;
 
 			case MODE_MODULATION:
 
-				xil_printf("Modulation Mode\r\n");
+				// Resume controller and model task
+				// vTaskResume(plant_model_task_handle);
+				vTaskResume(control_task_handle);
+				// xil_printf("Modulation Mode\r\n");
 				AXI_LED_DATA = LED_MODE_MODULATION; // Turn on LED2
 				break;
 			}

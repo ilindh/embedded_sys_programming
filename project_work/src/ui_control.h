@@ -23,6 +23,12 @@ typedef enum {
 
 extern volatile SystemMode_t current_system_mode;
 
+// Task handles
+extern TaskHandle_t control_task_handle;
+extern TaskHandle_t plant_model_task_handle;
+extern TaskHandle_t ui_control_task_handle;
+
+
 void ui_control_task(void *pvParameters);
 
 #endif

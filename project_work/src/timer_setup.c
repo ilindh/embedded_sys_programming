@@ -49,6 +49,6 @@ void TickHandler() {
 	// TTC0_ISR: Triple Timer Counter (TTC) 0 - Interrupt Status Register (ISR)
 	TTC0_ISR; // Cleared on read
 
-	AXI_LED_DATA ^= 0x8;
+	// AXI_LED_DATA ^= 0x8;
 
 }
