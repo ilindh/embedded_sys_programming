@@ -25,6 +25,8 @@ extern volatile float Kp;
 
 extern SemaphoreHandle_t control_out_MUTEX;
 extern SemaphoreHandle_t u_out_plant_MUTEX;
+extern SemaphoreHandle_t u_ref_MUTEX;
+
 
 extern volatile float u_out_plant;
 extern volatile float u_out_controller;

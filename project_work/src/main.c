@@ -119,6 +119,7 @@
 
 SemaphoreHandle_t control_out_MUTEX;
 SemaphoreHandle_t u_out_plant_MUTEX;
+SemaphoreHandle_t u_ref_MUTEX;
 
 TaskHandle_t control_task_handle;
 TaskHandle_t plant_model_task_handle;
@@ -150,6 +151,7 @@ int main( void ) {
 	// Create MUTEX instances.
 	control_out_MUTEX = xSemaphoreCreateMutex();
 	u_out_plant_MUTEX = xSemaphoreCreateMutex();
+	u_ref_MUTEX = xSemaphoreCreateMutex();
 
 	xil_printf( "Control System starting...\r\n" );
 
@@ -165,7 +167,7 @@ int main( void ) {
 					tskIDLE_PRIORITY+3,			// The task runs at the idle priority. Higher number means higher priority.
 					&control_task_handle);
 
-	vTaskSuspend(control_task_handle);
+	// vTaskSuspend(control_task_handle);
 
 	xTaskCreate(plant_model_task, 					// The function that implements the task.
 					"Plant model loop", 		// Text name for the task, provided to assist debugging only.

@@ -29,10 +29,27 @@ TickType_t xTaskGetTickCount(void);
 // Global variables for input and output.
 volatile float u_out_controller;
 
-static int print_interval = 5000;
+static int print_interval = 1000;
 static int i_print = 0;
 
-float u_ref = 120;
+// Static target voltage variable
+static float u_ref = 0;
+
+/// @brief This function allows for setting the target voltage with MUTEXes implemented.
+void setTargetVoltage(int new_target){
+
+	if( xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE ) {
+		/* The mutex was successfully obtained so the shared resource can be accessed safely. */
+		u_ref = new_target;
+
+		xSemaphoreGive(u_ref_MUTEX);
+		/* Access to the shared resource is complete, so the mutex is returned. */
+
+	 } else {
+		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
+		 xil_printf( "Error while setting the target voltage for controller.");
+	 }
+}
 
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
 static float getCurrentVoltage(void){
