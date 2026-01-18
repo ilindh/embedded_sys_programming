@@ -15,9 +15,21 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
-// PI-Controller loop interval in ms
-int excecution_interval = 10;
-extern float Ki;
-extern float Kp;
+// Task loop intervals in ms
+#define controller_interval 1
+#define ui_interval 10
+#define plant_interval 1
+
+extern volatile float Ki;
+extern volatile float Kp;
+
+extern SemaphoreHandle_t control_out_MUTEX;
+extern SemaphoreHandle_t u_out_plant_MUTEX;
+extern SemaphoreHandle_t u_ref_MUTEX;
+
+
+extern volatile float u_out_plant;
+extern volatile float u_out_controller;
+
 
 #endif

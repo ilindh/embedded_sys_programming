@@ -14,33 +14,82 @@
 #include "xparameters.h"
 #include "xil_types.h"
 
+#include "controller.h"
 #include "ui_control.h"
+#include "system_params.h"
 
 /* LUT includes. */
 #include "zynq_registers.h"
 
+// LED Definition masks for UI feedback of system mode (M.H)
+#define LED_MODE_CONFIG 	0X01	// LED0
+#define LED_MODE_IDLE 		0X02   	// LED1
+#define LED_MODE_MODULATION 0X04 	// LED2 ? tarkista onko ok led 2 tuolla 0x04
 
-void ui_control_function(){
+// global vartiable to ttrack current system mode (R.M)
+volatile SystemMode_t current_system_mode = MODE_CONFIG;
+
+// Degub variable:
+int tgt = 0;
+
+void ui_control_task(void *pvParameters){
+
+	const TickType_t xInterval = pdMS_TO_TICKS(ui_interval);
+	TickType_t xLastWakeTime;
 
 
-	int state = 0;
+	xLastWakeTime = xTaskGetTickCount();
 
-	switch(state){
+	// local variable to hold system mode
+	SystemMode_t ui_local_mode = MODE_CONFIG;
 
-		case 0:
+	AXI_LED_TRI = 0; // Set all LEDs as output
 
-			xil_printf( "State 0 Looped!\r\n" );
-			break;
+	for(;;){
 
-		case 1:
+		// Copy global mode to local mode
+		ui_local_mode = current_system_mode;
 
-			xil_printf( "State 1 Looped!\r\n" );
-			break;
+		// switch case to handle different modes
+		switch(ui_local_mode){
 
-		case 3:
+			case MODE_CONFIG:
 
-			xil_printf( "State 2 Looped!\r\n" );
-			break;
+				// Stop controller
+				// Debug:
+				tgt = 0;
+				setTargetVoltage(tgt);
+				// vTaskSuspend(control_task_handle);
+				// xil_printf("Configuration Mode\r\n");
+				AXI_LED_DATA = LED_MODE_CONFIG; // Turn on LED0
+				break;
+
+			case MODE_IDLE:
+
+				// Stop controller
+				// Debug:
+				tgt = 0;
+				setTargetVoltage(tgt);
+				// vTaskSuspend(control_task_handle);
+				// xil_printf("Idle Mode\r\n");
+				AXI_LED_DATA = LED_MODE_IDLE; // Turn on LED1
+				break;
+
+			case MODE_MODULATION:
+
+				// Debug:
+				// SOMEBODY PLEASE IMPLEMENT THIS!!!
+				tgt = 100;
+				setTargetVoltage(tgt);
+				// Resume controller and model task
+				// vTaskResume(plant_model_task_handle);
+				// vTaskResume(control_task_handle);
+				// xil_printf("Modulation Mode\r\n");
+				AXI_LED_DATA = LED_MODE_MODULATION; // Turn on LED2
+				break;
+			}
+
+	vTaskDelayUntil(&xLastWakeTime, xInterval);
 
 	}
 

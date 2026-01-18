@@ -18,36 +18,52 @@
 					<folderInfo id="xilinx.gnu.armv7.exe.debug.671076969." name="/" resourcePath="">
 						<toolChain id="xilinx.gnu.armv7.exe.debug.toolchain.1512359768" name="Xilinx ARM v7 GNU Toolchain" superClass="xilinx.gnu.armv7.exe.debug.toolchain">
 							<targetPlatform binaryParser="com.xilinx.sdk.managedbuilder.XELF.arm.a53.x32" id="xilinx.armv7.target.gnu.base.debug.1292136373" isAbstract="false" name="Debug Platform" superClass="xilinx.armv7.target.gnu.base.debug"/>
-							<builder buildPath="${workspace_loc:/project_work}/Debug" enableAutoBuild="true" id="xilinx.gnu.armv7.toolchain.builder.debug.690189839" managedBuildOn="true" name="GNU make.Debug" superClass="xilinx.gnu.armv7.toolchain.builder.debug"/>
+							<builder buildPath="${workspace_loc:/project_work}/Debug" enableAutoBuild="true" id="xilinx.gnu.armv7.toolchain.builder.debug.690189839" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU make" parallelBuildOn="true" parallelizationNumber="optimal" superClass="xilinx.gnu.armv7.toolchain.builder.debug"/>
 							<tool id="xilinx.gnu.armv7.c.toolchain.assembler.debug.1632663289" name="ARM v7 gcc assembler" superClass="xilinx.gnu.armv7.c.toolchain.assembler.debug">
 								<inputType id="xilinx.gnu.assembler.input.2001610497" superClass="xilinx.gnu.assembler.input"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.c.toolchain.compiler.debug.1025286691" name="ARM v7 gcc compiler" superClass="xilinx.gnu.armv7.c.toolchain.compiler.debug">
-								<option defaultValue="gnu.c.optimization.level.none" id="xilinx.gnu.compiler.option.optimization.level.258702933" superClass="xilinx.gnu.compiler.option.optimization.level" valueType="enumerated"/>
-								<option id="xilinx.gnu.compiler.option.debugging.level.1096157235" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1683020981" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
+								<option defaultValue="gnu.c.optimization.level.none" id="xilinx.gnu.compiler.option.optimization.level.258702933" name="Optimization Level" superClass="xilinx.gnu.compiler.option.optimization.level" valueType="enumerated"/>
+								<option id="xilinx.gnu.compiler.option.debugging.level.1096157235" name="Debug Level" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1683020981" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath"/>
+								<option id="xilinx.gnu.compiler.misc.other.785915453" name="Other flags" superClass="xilinx.gnu.compiler.misc.other" value="-c -fmessage-length=0 -MT&quot;$@&quot; -mcpu=cortex-a9 -mfpu=vfpv4 -mfloat-abi=hard" valueType="string"/>
+								<option id="xilinx.gnu.compiler.dircategory.includes.2069589710" name="Include Paths" superClass="xilinx.gnu.compiler.dircategory.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../project_work_bsp/ps7_cortexa9_0/include"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/project_work/src/ComputeLibrary}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/project_work/src/Include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/project_work/src/PrivateInclude}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/project_work/src/Include/dsp}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/project_work/src/Source}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/project_work/src/ComputeLibrary/Include}&quot;"/>
 								</option>
-								<option id="xilinx.gnu.compiler.misc.other.785915453" superClass="xilinx.gnu.compiler.misc.other" value="-c -fmessage-length=0 -MT&quot;$@&quot; -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" valueType="string"/>
+								<option id="xilinx.gnu.compiler.symbols.defined.293619437" name="Defined symbols (-D)" superClass="xilinx.gnu.compiler.symbols.defined" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="DISABLEFLOAT16"/>
+									<listOptionValue builtIn="false" value="ARM_MATH_DSP"/>
+									<listOptionValue builtIn="false" value="__FPU_PRESENT=1"/>
+									<listOptionValue builtIn="false" value="ARM_MATH_CA9"/>
+								</option>
 								<inputType id="xilinx.gnu.armv7.c.compiler.input.1062753263" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.cxx.toolchain.compiler.debug.227729399" name="ARM v7 g++ compiler" superClass="xilinx.gnu.armv7.cxx.toolchain.compiler.debug">
-								<option defaultValue="gnu.c.optimization.level.none" id="xilinx.gnu.compiler.option.optimization.level.106328495" superClass="xilinx.gnu.compiler.option.optimization.level" valueType="enumerated"/>
-								<option id="xilinx.gnu.compiler.option.debugging.level.657008213" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.2126830362" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
+								<option defaultValue="gnu.c.optimization.level.none" id="xilinx.gnu.compiler.option.optimization.level.106328495" name="Optimization Level" superClass="xilinx.gnu.compiler.option.optimization.level" valueType="enumerated"/>
+								<option id="xilinx.gnu.compiler.option.debugging.level.657008213" name="Debug Level" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.2126830362" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../project_work_bsp/ps7_cortexa9_0/include"/>
 								</option>
 							</tool>
 							<tool id="xilinx.gnu.armv7.toolchain.archiver.251706835" name="ARM v7 archiver" superClass="xilinx.gnu.armv7.toolchain.archiver"/>
-							<tool id="xilinx.gnu.armv7.c.toolchain.linker.debug.652913835" name="ARM v7 gcc linker" superClass="xilinx.gnu.armv7.c.toolchain.linker.debug">
-								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.2112174099" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
+							<tool commandLinePattern="@$(file &gt;linkcl.rsp,$(subst \,/,${FLAGS}) ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}) ${COMMAND} @linkcl.rsp" id="xilinx.gnu.armv7.c.toolchain.linker.debug.652913835" name="ARM v7 gcc linker" superClass="xilinx.gnu.armv7.c.toolchain.linker.debug">
+								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.2112174099" name="Software Platform Library Path" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
 									<listOptionValue builtIn="false" value="../../project_work_bsp/ps7_cortexa9_0/lib"/>
 								</option>
-								<option id="xilinx.gnu.linker.inferred.swplatform.flags.1222670581" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
+								<option id="xilinx.gnu.linker.inferred.swplatform.flags.1222670581" name="Software Platform Inferred Flags" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lfreertos,-lgcc,-lc,--end-group"/>
 								</option>
-								<option id="xilinx.gnu.c.linker.option.lscript.1429113628" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
-								<option id="xilinx.gnu.c.link.option.ldflags.550090357" superClass="xilinx.gnu.c.link.option.ldflags" value=" -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec" valueType="string"/>
+								<option id="xilinx.gnu.c.linker.option.lscript.1429113628" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
+								<option id="xilinx.gnu.c.link.option.ldflags.550090357" name="Linker Flags" superClass="xilinx.gnu.c.link.option.ldflags" value=" -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec" valueType="string"/>
+								<option id="xilinx.gnu.c.link.option.libs.67416358" name="Libraries (-l)" superClass="xilinx.gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="m"/>
+								</option>
 								<inputType id="xilinx.gnu.linker.input.717961470" superClass="xilinx.gnu.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -55,17 +71,34 @@
 								<inputType id="xilinx.gnu.linker.input.lscript.504152847" name="Linker Script" superClass="xilinx.gnu.linker.input.lscript"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.cxx.toolchain.linker.debug.605915986" name="ARM v7 g++ linker" superClass="xilinx.gnu.armv7.cxx.toolchain.linker.debug">
-								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1022922866" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
+								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1022922866" name="Software Platform Library Path" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
 									<listOptionValue builtIn="false" value="../../project_work_bsp/ps7_cortexa9_0/lib"/>
 								</option>
-								<option id="xilinx.gnu.linker.inferred.swplatform.flags.866343884" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
+								<option id="xilinx.gnu.linker.inferred.swplatform.flags.866343884" name="Software Platform Inferred Flags" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lfreertos,-lgcc,-lc,--end-group"/>
 								</option>
-								<option id="xilinx.gnu.c.linker.option.lscript.1041387954" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
+								<option id="xilinx.gnu.c.linker.option.lscript.1041387954" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.size.debug.1566380807" name="ARM v7 Print Size" superClass="xilinx.gnu.armv7.size.debug"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="xilinx.gnu.armv7.exe.debug.671076969.888877836" name="plant.c" rcbsApplicability="disable" resourcePath="src/plant.c" toolsToInvoke="xilinx.gnu.armv7.c.toolchain.compiler.debug.1025286691.1523685601">
+						<tool id="xilinx.gnu.armv7.c.toolchain.compiler.debug.1025286691.1523685601" name="ARM v7 gcc compiler" superClass="xilinx.gnu.armv7.c.toolchain.compiler.debug.1025286691">
+							<option id="xilinx.gnu.compiler.symbols.defined.1859202851" name="Defined symbols (-D)" superClass="xilinx.gnu.compiler.symbols.defined" valueType="definedSymbols">
+								<listOptionValue builtIn="false" value="ARM_MATH_CA9"/>
+							</option>
+							<inputType id="xilinx.gnu.armv7.c.compiler.input.397545237" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>
+						</tool>
+						<tool customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.1208939379" name="Resource Custom Build Step">
+							<inputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.inputtype.1953222770" name="Resource Custom Build Step Input Type">
+								<additionalInput kind="additionalinputdependency" paths=""/>
+							</inputType>
+							<outputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.outputtype.1023434507" name="Resource Custom Build Step Output Type"/>
+						</tool>
+					</fileInfo>
+					<sourceEntries>
+						<entry excluding="src/Source/MatrixFunctions/_arm_mat_vec_mult_neon.c|src/Source/MatrixFunctions/_arm_mat_mult_neon.c|src/Source/MatrixFunctions/_arm_mat_mult_neon_buffers.c|src/Source/WindowFunctions/WindowFunctions.c|src/Source/TransformFunctions/TransformFunctions.c|src/Source/SVMFunctions/SVMFunctions.c|src/Source/SupportFunctions/SupportFunctions.c|src/Source/StatisticsFunctions/StatisticsFunctions.c|src/Source/QuaternionMathFunctions/QuaternionMathFunctions.c|src/Source/MatrixFunctions/MatrixFunctions.c|src/Source/InterpolationFunctions/InterpolationFunctions.c|src/Source/FilteringFunctions/FilteringFunctions.c|src/Source/FastMathFunctions/FastMathFunctions.c|src/Source/DistanceFunctions/DistanceFunctions.c|src/Source/ControllerFunctions/ControllerFunctions.c|src/Source/ComplexMathFunctions/ComplexMathFunctions.c|src/Source/CommonTables/CommonTables.c|src/Source/BayesFunctions/BayesFunctions.c|src/Source/BasicMathFunctions/BasicMathFunctions.c|dsp_lib|dsp_lib/Source/SVMFunctions|dsp_lib/Source/TransformFunctions|dsp_lib/Source/WindowFunctions|dsp_lib/Source/BayesFunctions|core/Core/Template|dsp_lib/Source/MatrixFunctions/_arm_mat_vec_mult_neon.c|dsp_lib/Source/MatrixFunctions/_arm_mat_mult_neon_buffers.c|dsp_lib/Source/MatrixFunctions/_arm_mat_mult_neon.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
@@ -87,36 +120,36 @@
 					<folderInfo id="xilinx.gnu.armv7.exe.release.360764093." name="/" resourcePath="">
 						<toolChain id="xilinx.gnu.armv7.exe.release.toolchain.2130590205" name="Xilinx ARM v7 GNU Toolchain" superClass="xilinx.gnu.armv7.exe.release.toolchain">
 							<targetPlatform binaryParser="com.xilinx.sdk.managedbuilder.XELF.arm.a53.x32" id="xilinx.armv7.target.gnu.base.release.1842596251" isAbstract="false" name="Release Platform" superClass="xilinx.armv7.target.gnu.base.release"/>
-							<builder buildPath="${workspace_loc:/project_work}/Release" enableAutoBuild="true" id="xilinx.gnu.armv7.toolchain.builder.release.2107806840" managedBuildOn="true" name="GNU make.Release" superClass="xilinx.gnu.armv7.toolchain.builder.release"/>
+							<builder buildPath="${workspace_loc:/project_work}/Release" enableAutoBuild="true" id="xilinx.gnu.armv7.toolchain.builder.release.2107806840" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU make" superClass="xilinx.gnu.armv7.toolchain.builder.release"/>
 							<tool id="xilinx.gnu.armv7.c.toolchain.assembler.release.1436085813" name="ARM v7 gcc assembler" superClass="xilinx.gnu.armv7.c.toolchain.assembler.release">
 								<inputType id="xilinx.gnu.assembler.input.213566573" superClass="xilinx.gnu.assembler.input"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.c.toolchain.compiler.release.1892658454" name="ARM v7 gcc compiler" superClass="xilinx.gnu.armv7.c.toolchain.compiler.release">
-								<option defaultValue="gnu.c.optimization.level.more" id="xilinx.gnu.compiler.option.optimization.level.772430480" superClass="xilinx.gnu.compiler.option.optimization.level" valueType="enumerated"/>
-								<option id="xilinx.gnu.compiler.option.debugging.level.385181096" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
-								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.185292584" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
+								<option defaultValue="gnu.c.optimization.level.more" id="xilinx.gnu.compiler.option.optimization.level.772430480" name="Optimization Level" superClass="xilinx.gnu.compiler.option.optimization.level" valueType="enumerated"/>
+								<option id="xilinx.gnu.compiler.option.debugging.level.385181096" name="Debug Level" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.185292584" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../project_work_bsp/ps7_cortexa9_0/include"/>
 								</option>
-								<option id="xilinx.gnu.compiler.misc.other.1075171067" superClass="xilinx.gnu.compiler.misc.other" value="-c -fmessage-length=0 -MT&quot;$@&quot; -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" valueType="string"/>
+								<option id="xilinx.gnu.compiler.misc.other.1075171067" name="Other flags" superClass="xilinx.gnu.compiler.misc.other" value="-c -fmessage-length=0 -MT&quot;$@&quot; -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" valueType="string"/>
 								<inputType id="xilinx.gnu.armv7.c.compiler.input.811024127" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.cxx.toolchain.compiler.release.617293960" name="ARM v7 g++ compiler" superClass="xilinx.gnu.armv7.cxx.toolchain.compiler.release">
-								<option defaultValue="gnu.c.optimization.level.more" id="xilinx.gnu.compiler.option.optimization.level.1876853552" superClass="xilinx.gnu.compiler.option.optimization.level" valueType="enumerated"/>
-								<option id="xilinx.gnu.compiler.option.debugging.level.1207562283" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
-								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1950444983" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
+								<option defaultValue="gnu.c.optimization.level.more" id="xilinx.gnu.compiler.option.optimization.level.1876853552" name="Optimization Level" superClass="xilinx.gnu.compiler.option.optimization.level" valueType="enumerated"/>
+								<option id="xilinx.gnu.compiler.option.debugging.level.1207562283" name="Debug Level" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1950444983" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../project_work_bsp/ps7_cortexa9_0/include"/>
 								</option>
 							</tool>
 							<tool id="xilinx.gnu.armv7.toolchain.archiver.1063065363" name="ARM v7 archiver" superClass="xilinx.gnu.armv7.toolchain.archiver"/>
 							<tool id="xilinx.gnu.armv7.c.toolchain.linker.release.1088068342" name="ARM v7 gcc linker" superClass="xilinx.gnu.armv7.c.toolchain.linker.release">
-								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1809938010" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
+								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.1809938010" name="Software Platform Library Path" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
 									<listOptionValue builtIn="false" value="../../project_work_bsp/ps7_cortexa9_0/lib"/>
 								</option>
-								<option id="xilinx.gnu.linker.inferred.swplatform.flags.1355027571" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
+								<option id="xilinx.gnu.linker.inferred.swplatform.flags.1355027571" name="Software Platform Inferred Flags" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lfreertos,-lgcc,-lc,--end-group"/>
 								</option>
-								<option id="xilinx.gnu.c.linker.option.lscript.783930255" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
-								<option id="xilinx.gnu.c.link.option.ldflags.2066627953" superClass="xilinx.gnu.c.link.option.ldflags" value=" -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec" valueType="string"/>
+								<option id="xilinx.gnu.c.linker.option.lscript.783930255" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
+								<option id="xilinx.gnu.c.link.option.ldflags.2066627953" name="Linker Flags" superClass="xilinx.gnu.c.link.option.ldflags" value=" -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec" valueType="string"/>
 								<inputType id="xilinx.gnu.linker.input.1241302127" superClass="xilinx.gnu.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -124,17 +157,20 @@
 								<inputType id="xilinx.gnu.linker.input.lscript.698983137" name="Linker Script" superClass="xilinx.gnu.linker.input.lscript"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.cxx.toolchain.linker.release.1557626372" name="ARM v7 g++ linker" superClass="xilinx.gnu.armv7.cxx.toolchain.linker.release">
-								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.428070715" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
+								<option id="xilinx.gnu.linker.inferred.swplatform.lpath.428070715" name="Software Platform Library Path" superClass="xilinx.gnu.linker.inferred.swplatform.lpath" valueType="libPaths">
 									<listOptionValue builtIn="false" value="../../project_work_bsp/ps7_cortexa9_0/lib"/>
 								</option>
-								<option id="xilinx.gnu.linker.inferred.swplatform.flags.660173263" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
+								<option id="xilinx.gnu.linker.inferred.swplatform.flags.660173263" name="Software Platform Inferred Flags" superClass="xilinx.gnu.linker.inferred.swplatform.flags" valueType="libs">
 									<listOptionValue builtIn="false" value="-Wl,--start-group,-lxil,-lfreertos,-lgcc,-lc,--end-group"/>
 								</option>
-								<option id="xilinx.gnu.c.linker.option.lscript.29342292" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
+								<option id="xilinx.gnu.c.linker.option.lscript.29342292" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.size.release.452208163" name="ARM v7 Print Size" superClass="xilinx.gnu.armv7.size.release"/>
 						</toolChain>
 					</folderInfo>
+					<sourceEntries>
+						<entry excluding="src/Source/MatrixFunctions/_arm_mat_vec_mult_neon.c|src/Source/MatrixFunctions/_arm_mat_mult_neon.c|src/Source/MatrixFunctions/_arm_mat_mult_neon_buffers.c|src/Source/WindowFunctions/WindowFunctions.c|src/Source/TransformFunctions/TransformFunctions.c|src/Source/SVMFunctions/SVMFunctions.c|src/Source/SupportFunctions/SupportFunctions.c|src/Source/StatisticsFunctions/StatisticsFunctions.c|src/Source/QuaternionMathFunctions/QuaternionMathFunctions.c|src/Source/MatrixFunctions/MatrixFunctions.c|src/Source/InterpolationFunctions/InterpolationFunctions.c|src/Source/FilteringFunctions/FilteringFunctions.c|src/Source/FastMathFunctions/FastMathFunctions.c|src/Source/DistanceFunctions/DistanceFunctions.c|src/Source/ControllerFunctions/ControllerFunctions.c|src/Source/ComplexMathFunctions/ComplexMathFunctions.c|src/Source/CommonTables/CommonTables.c|src/Source/BayesFunctions/BayesFunctions.c|src/Source/BasicMathFunctions/BasicMathFunctions.c|dsp_lib|dsp_lib/Source/SVMFunctions|dsp_lib/Source/TransformFunctions|dsp_lib/Source/WindowFunctions|dsp_lib/Source/BayesFunctions|core/Core/Template|dsp_lib/Source/MatrixFunctions/_arm_mat_vec_mult_neon.c|dsp_lib/Source/MatrixFunctions/_arm_mat_mult_neon_buffers.c|dsp_lib/Source/MatrixFunctions/_arm_mat_mult_neon.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
@@ -158,5 +194,13 @@
 		<scannerConfigBuildInfo instanceId="xilinx.gnu.armv7.exe.release.360764093;xilinx.gnu.armv7.exe.release.360764093.">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.xilinx.managedbuilder.ui.ARMA53X32GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/project_work"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/project_work"/>
+		</configuration>
 	</storageModule>
 </cproject>

@@ -107,16 +107,52 @@
 
 // Custom header files:
 #include "controller.h"
+#include "plant.h"
 #include "ui_control.h"
+#include "system_params.h"
 #include "zynq_registers.h"
 
+// Interrupt:
+
+#include <xscugic.h>
+
+
+SemaphoreHandle_t control_out_MUTEX;
+SemaphoreHandle_t u_out_plant_MUTEX;
+SemaphoreHandle_t u_ref_MUTEX;
+
+TaskHandle_t control_task_handle;
+TaskHandle_t plant_model_task_handle;
+TaskHandle_t ui_control_task_handle;
+
+
+extern XScuGic xInterruptController;
+
+// Function decalarations
+void SetupInterrupts();
+
+
 int main( void ) {
-	  AXI_BTN_TRI |= 0xF; // Set direction for buttons 0..3 ,  0 means output, 1 means input
-      AXI_LED_TRI = ~0xF;			// Set direction for bits 0-3 to output for the LEDs
 
+	// Set LEDs as output
+	AXI_LED_TRI &= ~(0b1111UL);
+	AXI_BTN_TRI |= 0xF;
 
-	xil_printf( "Control System starting.\r\n" );
-	xil_printf( "Control System starting..\r\n" );
+	SetupInterrupts();
+	// SetupUART();
+	// SetupUARTInterrupt();
+	SetupTimer();
+	SetupTicker();
+	SetupPushButtons();
+
+	// AXI_BTN_TRI |= 0xF; 		// Set direction for buttons 0..3 ,  0 means output, 1 means input
+	// AXI_LED_TRI = ~0xF;		// Set direction for bits 0-3 to output for the LEDs !!! REMOVED BY (R.M and M.H) done in ui_control.c
+
+	// Create MUTEX instances.
+	control_out_MUTEX = xSemaphoreCreateMutex();
+	u_out_plant_MUTEX = xSemaphoreCreateMutex();
+	u_ref_MUTEX = xSemaphoreCreateMutex();
+
 	xil_printf( "Control System starting...\r\n" );
 
 	/**
@@ -124,12 +160,30 @@ int main( void ) {
 	 * Each function behaves as if it had full control of the controller.
 	 * https://www.freertos.org/a00125.html
 	 */
-	xTaskCreate(PI_controller, 					// The function that implements the task.
-					"PI-controller", 			// Text name for the task, provided to assist debugging only.
+	xTaskCreate(control_task, 					// The function that implements the task.
+					"Controller loop", 			// Text name for the task, provided to assist debugging only.
 					4096, 						// The stack allocated to the task.
 					NULL, 						// The task parameter is not used, so set to NULL.
-					tskIDLE_PRIORITY+10,		// The task runs at the idle priority. Higher number means higher priority.
-					NULL );
+					tskIDLE_PRIORITY+3,			// The task runs at the idle priority. Higher number means higher priority.
+					&control_task_handle);
+
+	// vTaskSuspend(control_task_handle);
+
+	xTaskCreate(plant_model_task, 					// The function that implements the task.
+					"Plant model loop", 		// Text name for the task, provided to assist debugging only.
+					4096, 						// The stack allocated to the task.
+					NULL, 						// The task parameter is not used, so set to NULL.
+					tskIDLE_PRIORITY+2,			// The task runs at the idle priority. Higher number means higher priority.
+					&plant_model_task_handle );
+
+	// vTaskSuspend(plant_model_task_handle);
+
+	xTaskCreate(ui_control_task, 					// The function that implements the task.
+					"UI control loop", 			// Text name for the task, provided to assist debugging only.
+					4096, 						// The stack allocated to the task.
+					NULL, 						// The task parameter is not used, so set to NULL.
+					tskIDLE_PRIORITY+1,			// The task runs at the idle priority. Higher number means higher priority.
+					&ui_control_task_handle );
 
 	// Start the tasks and timer running.
 	// https://www.freertos.org/a00132.html
@@ -138,5 +192,19 @@ int main( void ) {
 	for( ;; );
 }
 
+void SetupInterrupts()
+{
+	XScuGic_Config *pxGICConfig;
 
+	/* Ensure no interrupts execute while the scheduler is in an inconsistent
+	state.  Interrupts are automatically enabled when the scheduler is
+	started. */
+	portDISABLE_INTERRUPTS();
+
+	/* Obtain the configuration of the GIC. */
+	pxGICConfig = XScuGic_LookupConfig( XPAR_SCUGIC_SINGLE_DEVICE_ID );
+
+	/* Install a default handler for each GIC interrupt. */
+	XScuGic_CfgInitialize( &xInterruptController, pxGICConfig, pxGICConfig->CpuBaseAddress );
+}
 

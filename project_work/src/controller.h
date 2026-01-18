@@ -17,7 +17,9 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
+void setTargetVoltage(int target_voltage);
 
-extern void PI_controller(float u_ref);
-
+void control_task(void *pvParameters);
+float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp);
+void PWM_control(void);
 #endif
