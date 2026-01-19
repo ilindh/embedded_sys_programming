@@ -4,6 +4,7 @@
  */
 
 
+
 #include "controller.h"
 #include "plant.h"
 /* FreeRTOS includes. */
@@ -18,6 +19,9 @@
 #include "system_params.h"
 /* LUT includes. */
 #include "zynq_registers.h"
+#include <xttcps.h>
+#include <sleep.h>
+#include <stdint.h>
 
 // Variables:
 
@@ -85,9 +89,10 @@ static void setCurrentVoltage(float u_out){
 }
 
 
-
 /// @brief This is the Controller Task function
 void control_task(void *pvParameters) {
+
+	setupPWMTimers();
 
 	TickType_t xLastWakeTime;
 	const TickType_t xInterval = pdMS_TO_TICKS(controller_interval);
