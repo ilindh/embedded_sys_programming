@@ -30,7 +30,7 @@
 volatile SystemMode_t current_system_mode = MODE_CONFIG;
 
 // Degub variable:
-int tgt = 0;
+float tgt = 0;
 
 void ui_control_task(void *pvParameters){
 

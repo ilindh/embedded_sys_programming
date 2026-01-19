@@ -4,6 +4,7 @@
 #include <xgpio.h>
 #include "setup_btn.h"
 #include "ui_control.h"
+#include "controller.h"
 
 XGpio BTNS_SWTS;
 
@@ -49,12 +50,26 @@ void PushButtons_Intr_Handler(void *data)
     if (button_states & 0x4) {
         xil_printf("Button 2 pressed\r\n");
         // Button 2 functionality can be added here
+
+        // MODULATION - VOLTAGE CHANGE
+        if (current_system_mode == MODE_MODULATION) {
+            // Increase target voltage
+            increaseTargetVoltage(1);
+            xil_printf("Target voltage increased by 1");
+        }
     }
 
     // BUTTON 3 - decrease parameter / voltage value
     if (button_states & 0x8) {
         xil_printf("Button 3 pressed\r\n");
         // Button 3 functionality can be added here
+
+        // MODULATION - VOLTAGE CHANGE
+        if (current_system_mode == MODE_MODULATION) {
+            // Decrease target voltage
+            decreaseTargetVoltage(1);
+            xil_printf("Target voltage decreased by 1");
+        }
     }
 
     XGpio_InterruptClear(&BTNS_SWTS,0xF);
