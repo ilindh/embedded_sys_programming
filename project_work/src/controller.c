@@ -37,15 +37,47 @@ static int print_interval = 1000;
 static int i_print = 0;
 
 // Static target voltage variable
-static float u_ref = 0;
+volatile float u_ref = 0;
+
+// increase target voltage function - R.M.
+/// @brief This function increases the target voltage by a specified step.
+/// @param step The amount by which to increase the target voltage.
+void increaseTargetVoltage(float step){
+    if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+        float new_target = u_ref + step;
+        // Range checking
+        if (new_target > 400) new_target = 400;
+        u_ref = new_target;
+        xSemaphoreGive(u_ref_MUTEX);
+    }
+}
+// decrease target voltage function - R.M.
+/// @brief This function decreases the target voltage by a specified step.
+/// @param step The amount by which to decrease the target voltage.
+void decreaseTargetVoltage(float step){
+    if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+        float new_target = u_ref - step;
+        // Range checking
+        if (new_target < 0) new_target = 0;
+        u_ref = new_target;
+        xSemaphoreGive(u_ref_MUTEX);
+    }
+}
 
 /// @brief This function allows for setting the target voltage with MUTEXes implemented.
-void setTargetVoltage(int new_target){
+void setTargetVoltage(float new_target){
 
 	if( xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE ) {
 		/* The mutex was successfully obtained so the shared resource can be accessed safely. */
-		u_ref = new_target;
 
+		// Range checking for the targetvoltage - R.M.
+		if (new_target < 0) {
+			new_target = 0;
+		}
+		else if (new_target > 400) {
+			new_target = 400;
+		}
+		u_ref = new_target;
 		xSemaphoreGive(u_ref_MUTEX);
 		/* Access to the shared resource is complete, so the mutex is returned. */
 
@@ -140,14 +172,14 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 
 	static float err, err_prev, yi_prev, yd_prev;
 
-	//määritä vielä tarkempi arvo!!
+	//mï¿½ï¿½ritï¿½ vielï¿½ tarkempi arvo!!
 	static float windupLimit = 200;
 	static float yp, yi, yd, PI_out;
 
 	float u_max = 400;
 	float u_min = 0;
 
-    //  err = ref – y;
+    //  err = ref ï¿½ y;
 	err = u_ref-u_meas; // Calculate the error value
 
 	// Calculate yp, yi ja yd
@@ -167,7 +199,7 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 	// Saturate the output of the controller
 	float unsat_out = yp + yi + yd;
 
-	PI_out = unsat_out; //toimiiko if tsydeemi tällä en oo yhtää varma??
+	PI_out = unsat_out; //toimiiko if tsydeemi tï¿½llï¿½ en oo yhtï¿½ï¿½ varma??
 
 	if (PI_out > u_max){
 		PI_out = u_max;

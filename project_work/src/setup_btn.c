@@ -4,6 +4,8 @@
 #include <xgpio.h>
 #include "setup_btn.h"
 #include "ui_control.h"
+#include "controller.h"
+#include "system_params.h"
 
 XGpio BTNS_SWTS;
 
@@ -29,34 +31,26 @@ void PushButtons_Intr_Handler(void *data)
 {
     // Handle button press to chantge system mode
 
+	static TickType_t last_button_time = 0;
+	const TickType_t debounce_delay = pdMS_TO_TICKS(200); // 200ms debounce
+
+	// Read button states
     u32 button_states = XGpio_DiscreteRead(&BTNS_SWTS, BUTTONS_channel);
 
-    // BUTTON 0 - change system mode
-    if (button_states & 0x1) {
-        // Change system mode by cycling through the enum values
-        current_system_mode = (SystemMode_t)((current_system_mode + 1) % 3);
-
-        xil_printf("System mode changed to: %d\r\n", current_system_mode);
+    // start debounce timer and check it
+    TickType_t current_time = xTaskGetTickCount();
+    if (current_time - last_button_time < debounce_delay) {
+    	XGpio_InterruptClear(&BTNS_SWTS, 0xF);
+    	return;
     }
 
-    // BUTTON 1 - change parameter
-    if (button_states & 0x2) {
-        xil_printf("Button 1 pressed\r\n");
-        // Button 2 functionality can be added here
-    }
+    last_button_time = current_time;
 
-    // BUTTON 2 - increase parameter / voltage value
-    if (button_states & 0x4) {
-        xil_printf("Button 2 pressed\r\n");
-        // Button 2 functionality can be added here
-    }
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    // BUTTON 3 - decrease parameter / voltage value
-    if (button_states & 0x8) {
-        xil_printf("Button 3 pressed\r\n");
-        // Button 3 functionality can be added here
-    }
-
+    // create a notify to ui_control task that will handle the necessary operations
+	xTaskNotifyFromISR(ui_control_task_handle, button_states, eSetBits, &xHigherPriorityTaskWoken);
     XGpio_InterruptClear(&BTNS_SWTS,0xF);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
 }
