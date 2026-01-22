@@ -18,6 +18,7 @@
 #include "zynq_registers.h"
 
 void increaseTargetVoltage(float step);
+void decreaseTargetVoltage(float step);
 void setTargetVoltage(float target_voltage);
 
 void control_task(void *pvParameters);

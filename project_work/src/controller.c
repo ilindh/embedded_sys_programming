@@ -39,15 +39,25 @@ volatile float u_ref = 0;
 /// @brief This function increases the target voltage by a specified step.
 /// @param step The amount by which to increase the target voltage.
 void increaseTargetVoltage(float step){
-	setTargetVoltage(u_ref + step);
-	return;
+    if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+        float new_target = u_ref + step;
+        // Range checking
+        if (new_target > 400) new_target = 400;
+        u_ref = new_target;
+        xSemaphoreGive(u_ref_MUTEX);
+    }
 }
 // decrease target voltage function - R.M.
 /// @brief This function decreases the target voltage by a specified step.
 /// @param step The amount by which to decrease the target voltage.
 void decreaseTargetVoltage(float step){
-	setTargetVoltage(u_ref - step);
-	return;
+    if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+        float new_target = u_ref - step;
+        // Range checking
+        if (new_target < 0) new_target = 0;
+        u_ref = new_target;
+        xSemaphoreGive(u_ref_MUTEX);
+    }
 }
 
 /// @brief This function allows for setting the target voltage with MUTEXes implemented.
