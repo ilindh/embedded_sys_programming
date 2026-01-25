@@ -178,7 +178,7 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 	static float err, err_prev, yi_prev, yd_prev;
 
 	// Define a proper value for windup!!!
-	static float windupLimit = 200;
+	static float windupLimit = 400;
 	static float yp, yi, yd, PI_out;
 
 	float u_max = 400;

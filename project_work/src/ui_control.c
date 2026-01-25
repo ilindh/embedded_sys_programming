@@ -61,8 +61,8 @@ void ui_control_task(void *pvParameters){
         	if (ulNotificationValue & 0x02) {
         		// Button 1 - change parameter - NOT YET IMPLEMENTED
                 if (current_system_mode == MODE_MODULATION) {
-                    setTargetVoltage(100);
-                    xil_printf("Target voltage set to 100 V!\r\n");
+                    setTargetVoltage(step_voltage_size);
+                    xil_printf("Target voltage set to %d V!\r\n", step_voltage_tgt);
                 } else {
                 	xil_printf("\r\n\r\n");
                 }
