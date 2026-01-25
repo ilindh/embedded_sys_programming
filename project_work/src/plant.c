@@ -6,7 +6,9 @@
 #include "plant.h"
 #include "arm_math.h"
 #include "system_params.h"
-
+#include "zynq_registers.h"
+#include <xttcps.h>
+#include <stdint.h>
 
 // Discretized model copied from assignment instruction sheet:
 static const float A_matrix[6][6] = {{0.9652, -0.0172, 0.0057, -0.0058, 0.0052, -0.0251},
@@ -30,7 +32,6 @@ static float current_state[6] = 		{0,0,0,0,0,0};
 
 // Global variables for input and output.
 volatile float u_out_plant;
-
 
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
 static float getCurrentVoltage(void){
@@ -119,9 +120,32 @@ void plant_model_task(void *pvParameters) {
 		// the output u_out
 		setCurrentVoltage(current_state[5]); // !NOT! defined locally (I.L.)
 
+		// Obtain brightness from the output voltage.
+		// Scaled from 0-> TARGET + 100 V and to the 16bit integer value
+		uint16_t LED_brightness = (uint16_t)((current_state[5]/(max_out_plant))*65000);
+
+		updatePWMBrightness(LED_brightness);
+
 		// return u_out; // Don't return nothing. We use global variables and semaphores to transfer data in  the system.
 
 		// This function ensures stable loop time.
 		vTaskDelayUntil(&xLastWakeTime, xInterval);
 	}
+}
+
+void updatePWMBrightness(uint16_t Count_Value){
+	// Read the interrupt status to clear the interrupt.
+	// TTC0_ISR: Triple Timer Counter (TTC) 0 - Interrupt Status Register (ISR)
+	// TTC0_ISR; // Cleared on read
+
+	// AXI_LED_DATA ^= 0x8;
+
+	// COURSE EXAMPLE:
+	// &TTC0_MATCH_0
+	// const u32* ptr_match_register = &TTC0_MATCH_0;
+	// *ptr_register = match_value++;
+
+	TTC0_MATCH_1 = Count_Value;	// Order: R, G, B
+	TTC0_MATCH_1_COUNTER_2 = Count_Value >> 1; // Divided by 2
+	// TTC0_MATCH_1_COUNTER_3 = Count_Value >> 2; // Divided by 4
 }

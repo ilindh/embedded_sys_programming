@@ -45,6 +45,7 @@ void ui_control_task(void *pvParameters){
 	SystemMode_t previous_mode = MODE_CONFIG;
 
 	AXI_LED_TRI = 0; // Set all LEDs as output
+	AXI_LED_DATA = LED_MODE_CONFIG;
 
 	for(;;){
 
@@ -54,19 +55,25 @@ void ui_control_task(void *pvParameters){
         	if (ulNotificationValue & 0x01) {
                 // Button 0 - mode change
                 current_system_mode = (SystemMode_t)((current_system_mode + 1) % 3);
-                xil_printf("System mode changed to: %d\r\n", current_system_mode);
+                xil_printf("System mode changed to: ");
             }
 
         	if (ulNotificationValue & 0x02) {
         		// Button 1 - change parameter - NOT YET IMPLEMENTED
-        		xil_printf("Button 1 pressed");
+                if (current_system_mode == MODE_MODULATION) {
+                    setTargetVoltage(100);
+                    xil_printf("Target voltage set to 100 V!\r\n");
+                } else {
+                	xil_printf("Button 1 pressed\n");
+                }
+
         	}
 
             if (ulNotificationValue & 0x04) {
                 // Button 2 - increase voltage
                 if (current_system_mode == MODE_MODULATION) {
                     increaseTargetVoltage(10);
-                    xil_printf("Target voltage increased by 10\r\n");
+                    xil_printf("Target voltage increased by: +10!\r\n");
                 }
             }
 
@@ -74,7 +81,7 @@ void ui_control_task(void *pvParameters){
                 // Button 3 - decrease voltage
                 if (current_system_mode == MODE_MODULATION) {
                     decreaseTargetVoltage(10);
-                    xil_printf("Target voltage decreased by 10\r\n");
+                    xil_printf("Target voltage decreased by: -10!\r\n");
                 }
             }
         }
@@ -87,7 +94,7 @@ void ui_control_task(void *pvParameters){
 			switch(ui_local_mode){
 	
 				case MODE_CONFIG:
-	
+					xil_printf("CONFIG \r\n");
 					// Stop controller
 					// Debug:
 					tgt = 0;
@@ -98,7 +105,7 @@ void ui_control_task(void *pvParameters){
 					break;
 	
 				case MODE_IDLE:
-	
+					xil_printf("IDLE \r\n");
 					// Stop controller
 					// Debug:
 					tgt = 0;
@@ -109,7 +116,7 @@ void ui_control_task(void *pvParameters){
 					break;
 	
 				case MODE_MODULATION:
-	
+					xil_printf("MODULATION \r\n");
 					// Debug:
 					// SOMEBODY PLEASE IMPLEMENT THIS!!!
 					// tgt = 100;

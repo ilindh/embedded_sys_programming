@@ -141,8 +141,8 @@ int main( void ) {
 	SetupInterrupts();
 	// SetupUART();
 	// SetupUARTInterrupt();
-	SetupTimer();
-	SetupTicker();
+	SetupPWMTimer();
+	// SetupPWMHandler();
 	SetupPushButtons();
 
 	// AXI_BTN_TRI |= 0xF; 		// Set direction for buttons 0..3 ,  0 means output, 1 means input
@@ -153,7 +153,7 @@ int main( void ) {
 	u_out_plant_MUTEX = xSemaphoreCreateMutex();
 	u_ref_MUTEX = xSemaphoreCreateMutex();
 
-	xil_printf( "Control System starting...\r\n" );
+	xil_printf( "Control System starting... \r\n" );
 
 	/**
 	 * Create four tasks t

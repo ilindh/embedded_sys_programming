@@ -14,9 +14,10 @@
 
 extern XScuGic xInterruptController;	// Interrupt controller instance
 
-void SetupTicker();
-void SetupTimer();
-void TickHandler();
+// void SetupPWMHandler();
+void SetupPWMTimer();
+// void TickHandler();
 
+// extern volatile u32* ptr_match_register;
 
 #endif /* SRC_TIMER_SETUP_H_ */
