@@ -8,6 +8,7 @@
 #include "controller.h"
 #include "plant.h"
 #include "timer_setup.h"
+#include "ui_control.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -38,8 +39,90 @@ volatile float u_out_controller;
 static const int print_interval = 500;
 static volatile int i_print = 0;
 
-// Static target voltage variable
+// volatile target voltage variable
 volatile float u_ref = 0;
+
+// volatile variables for the Kp and Ki parameters
+volatile float Kp = 4.5;
+volatile float Ki = 6.0;
+volatile float Kd = 0.01;
+
+volatile ConfigParam_t selected_param = PARAM_KP;
+
+void toggleParameter(void){
+	selected_param = (ConfigParam_t)((selected_param +1) % 3);
+}
+
+ConfigParam_t getSelectedParameter(void){
+	return selected_param;
+}
+
+// increase parameter function - R.M.
+/// @brief This function increases the selected parameter (Kp/Ki) by a specified step.
+/// @param step The amount by which to increase the selected parameter voltage.
+void increaseParameter(float step) {
+    if (selected_param == PARAM_KP) {
+        if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+            float new_kp = Kp + step;
+            if (new_kp > 100.0) {
+            	new_kp = 100.0;
+            }
+            Kp = new_kp;
+            xSemaphoreGive(u_ref_MUTEX);
+        }
+    } else if (selected_param == PARAM_KI) {
+        if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+            float new_ki = Ki + step;
+            if (new_ki > 100.0) {
+            	new_ki = 100.0;
+            }
+            Ki = new_ki;
+            xSemaphoreGive(u_ref_MUTEX);
+        }
+    } else if (selected_param == PARAM_KD) {
+        if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+            float new_kd = Kd + step;
+            if (new_kd > 100.0) {
+            	new_kd = 100.0;
+            }
+            Kd = new_kd;
+            xSemaphoreGive(u_ref_MUTEX);
+        }
+    }
+}
+// decrease parameter function - R.M.
+/// @brief This function decreases the selected parameter (Kp/Ki) by a specified step.
+/// @param step The amount by which to decreases the selected parameter voltage.
+void decreaseParameter(float step) {
+    if (selected_param == PARAM_KP) {
+        if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+            float new_kp = Kp - step;
+            if (new_kp < 0) {
+            	new_kp = 0;
+            }
+            Kp = new_kp;
+            xSemaphoreGive(u_ref_MUTEX);
+        }
+    } else if (selected_param == PARAM_KI) {
+        if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+            float new_ki = Ki - step;
+            if (new_ki < 0) {
+            	new_ki = 0;
+            }
+            Ki = new_ki;
+            xSemaphoreGive(u_ref_MUTEX);
+        }
+    } else if (selected_param == PARAM_KD) {
+        if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+            float new_kd = Kd - step;
+            if (new_kd < 0) {
+            	new_kd = 0;
+            }
+            Kd = new_kd;
+            xSemaphoreGive(u_ref_MUTEX);
+        }
+    }
+}
 
 // increase target voltage function - R.M.
 /// @brief This function increases the target voltage by a specified step.
@@ -48,7 +131,9 @@ void increaseTargetVoltage(float step){
     if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
         float new_target = u_ref + step;
         // Range checking
-        if (new_target > 400) new_target = 400;
+        if (new_target > 400) {
+        	new_target = 400;
+        }
         u_ref = new_target;
         xSemaphoreGive(u_ref_MUTEX);
     }
@@ -60,7 +145,9 @@ void decreaseTargetVoltage(float step){
     if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
         float new_target = u_ref - step;
         // Range checking
-        if (new_target < 0) new_target = 0;
+        if (new_target < 0) {
+        	new_target = 0;
+        }
         u_ref = new_target;
         xSemaphoreGive(u_ref_MUTEX);
     }
@@ -134,10 +221,12 @@ void control_task(void *pvParameters) {
 	TickType_t xLastWakeTime;
 	const TickType_t xInterval = pdMS_TO_TICKS(controller_interval);
 
+	/*
 	// TEMPORARY fixed input.
 	float Kp = 4.5;
 	float Ki = 6;
 	float Kd = 0.01;
+	*/
 
 	xLastWakeTime = xTaskGetTickCount();
 
@@ -152,15 +241,27 @@ void control_task(void *pvParameters) {
 		if(i_print == print_interval){
 
 			i_print = 0;
-			/*
-			xil_printf("\n");
-			xil_printf( "Control Loop Interval: %d \r\n", (int)xLastWakeTime);
-			xil_printf( "Target Voltage: %d \r\n", (int)u_ref);
-			xil_printf( "Converter voltage [V]: %d \r\n", (int)u_meas);
-			xil_printf( "PI output [V]: %d \r\n", (int)u_out_controller); */
 
-			// xil_printf("\n");
-			xil_printf( "Rnd: %d (s) | Tgt: %d (mV) | PI: %d (mV) | Plant: %d (mV)			\r\n", (int)(xLastWakeTime/10000), (int)(u_ref*100), (int)(u_out_controller*100), (int)(u_meas*100));
+			SystemMode_t current_mode = current_system_mode;
+
+			switch(current_mode){
+				case MODE_CONFIG:
+					xil_printf("Rnd: %d (s) | Kp: %d.%02d | Ki: %d.%02d | Kd: %d.%02d\r\n",
+						(int)(xLastWakeTime/10000),
+						(int)Kp, (int)((Kp - (int)Kp) * 100),
+						(int)Ki, (int)((Ki - (int)Ki) * 100),
+						(int)Kd, (int)((Kd - (int)Kd) * 100));
+					break;
+				case MODE_MODULATION:
+					xil_printf("Rnd: %d (s) | Tgt: %d (mV) | PI: %d (mV) | Plant: %d (mV)\r\n",
+						(int)(xLastWakeTime/10000),
+						(int)(u_ref*100),
+						(int)(u_out_controller*100),
+						(int)(u_meas*100)); // Integer and decimal parts of Kd
+					break;
+				case MODE_IDLE:
+					break;
+			}
 		}
 
 		i_print++;

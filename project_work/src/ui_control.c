@@ -63,18 +63,45 @@ void ui_control_task(void *pvParameters){
                 if (current_system_mode == MODE_MODULATION) {
                     setTargetVoltage(step_voltage_tgt);
                     xil_printf("Target voltage set to %d V!\r\n", step_voltage_tgt);
-                } else {
+                }
+                else if (current_system_mode == MODE_CONFIG) {
+                	toggleParameter();
+                	ConfigParam_t param = getSelectedParameter();
+                	if(param == PARAM_KP) {
+                		xil_printf("Selected parameter: Kp\r\n");
+                	}
+                	else if (param == PARAM_KI){
+						xil_printf("Selected parameter: Ki\r\n");
+                	}
+                	else {
+						xil_printf("Selected parameter: Kd\r\n");
+                	}
+                }
+                else {
                 	xil_printf("\r\n\r\n");
                 }
 
         	}
 
             if (ulNotificationValue & 0x04) {
-                // Button 2 - increase voltage
+                // Button 2 - increase
                 if (current_system_mode == MODE_MODULATION) {
                     increaseTargetVoltage(10);
                     xil_printf("Target voltage increased by: +10V!\r\n");
                 }
+                else if (current_system_mode == MODE_CONFIG) {
+					increaseParameter(0.01);
+					ConfigParam_t param = getSelectedParameter();
+					if(param == PARAM_KP) {
+                        xil_printf("Kp increased to: %d.%02d\r\n", (int)Kp, (int)((Kp - (int)Kp) * 100));
+					}
+					else if (param == PARAM_KI){
+                        xil_printf("Ki increased to: %d.%02d\r\n", (int)Ki, (int)((Ki - (int)Ki) * 100));
+					}
+					else {
+						xil_printf("Kd increased to: %d.%02d\r\n", (int)Kd, (int)((Kd - (int)Kd) * 100));
+					}
+				}
             }
 
             if (ulNotificationValue & 0x08) {
@@ -83,6 +110,19 @@ void ui_control_task(void *pvParameters){
                     decreaseTargetVoltage(10);
                     xil_printf("Target voltage decreased by: -10V!\r\n");
                 }
+                else if (current_system_mode == MODE_CONFIG) {
+					decreaseParameter(0.01);
+					ConfigParam_t param = getSelectedParameter();
+					if(param == PARAM_KP) {
+                        xil_printf("Kp decreased to: %d.%02d\r\n", (int)Kp, (int)((Kp - (int)Kp) * 100));
+					}
+					else if (param == PARAM_KI){
+						xil_printf("Ki decreased to: %d.%02d\r\n", (int)Ki, (int)((Ki - (int)Ki) * 100));
+					}
+					else {
+						xil_printf("Kd decreased to: %d.%02d\r\n", (int)Kd, (int)((Kd - (int)Kd) * 100));
+					}
+				}
             }
         }
 
