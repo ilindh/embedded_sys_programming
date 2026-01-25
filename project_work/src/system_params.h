@@ -20,6 +20,10 @@
 #define ui_interval 10
 #define plant_interval 1
 
+// Variable that determines the min and max output for converter, used for brightness
+#define max_out_plant 400
+#define min_out_plant 0
+
 extern volatile float Ki;
 extern volatile float Kp;
 extern volatile float u_ref;

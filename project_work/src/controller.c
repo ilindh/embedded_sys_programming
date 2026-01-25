@@ -7,6 +7,8 @@
 
 #include "controller.h"
 #include "plant.h"
+#include "timer_setup.h"
+
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -33,8 +35,8 @@ TickType_t xTaskGetTickCount(void);
 // Global variables for input and output.
 volatile float u_out_controller;
 
-static int print_interval = 1000;
-static int i_print = 0;
+static const int print_interval = 250;
+static volatile int i_print = 0;
 
 // Static target voltage variable
 volatile float u_ref = 0;
@@ -83,7 +85,7 @@ void setTargetVoltage(float new_target){
 
 	 } else {
 		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
-		 xil_printf( "Error while setting the target voltage for controller.");
+		 xil_printf( "\nError while setting the target voltage for controller.\n");
 	 }
 }
 
@@ -100,7 +102,7 @@ static float getCurrentVoltage(void){
 	 } else {
 		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
 
-		 xil_printf( "Error while retreiving the plant voltage.");
+		 xil_printf( "\nError while retreiving the plant voltage.\n");
 		 return u_ref;
 	 }
 }
@@ -116,15 +118,18 @@ static void setCurrentVoltage(float u_out){
 
 	 } else {
 		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
-		 xil_printf( "Error while setting the controller output.");
+		 xil_printf( "\nError while setting the controller output.\n");
 	 }
 }
 
 
+// Helper variable for controlling the PWM kled brightness.
+// Static and Volatile to encapsulate a volatile variable to this file only!
+// Im too lazy to implement semaphore now so static volatile will do now.
+// static volatile uint32_t PWM_brightness = 0;
+
 /// @brief This is the Controller Task function
 void control_task(void *pvParameters) {
-
-	setupPWMTimers();
 
 	TickType_t xLastWakeTime;
 	const TickType_t xInterval = pdMS_TO_TICKS(controller_interval);
@@ -154,8 +159,8 @@ void control_task(void *pvParameters) {
 			xil_printf( "Converter voltage [V]: %d \r\n", (int)u_meas);
 			xil_printf( "PI output [V]: %d \r\n", (int)u_out_controller); */
 
-			xil_printf("\n");
-			xil_printf( "Int: %d | Tgt: %d | PI: %d | Plant: %d \n\r", (int)xLastWakeTime, (int)u_ref, (int)u_out_controller, (int)u_meas);
+			// xil_printf("\n");
+			xil_printf( "Rnd: %d | Tgt: %d | PI: %d | Plant: %d			\r\n", (int)xLastWakeTime, (int)u_ref, (int)u_out_controller, (int)u_meas);
 		}
 
 		i_print++;
@@ -172,7 +177,7 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 
 	static float err, err_prev, yi_prev, yd_prev;
 
-	//m��rit� viel� tarkempi arvo!!
+	// Define a proper value for windup!!!
 	static float windupLimit = 200;
 	static float yp, yi, yd, PI_out;
 
@@ -187,8 +192,7 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
    	yi = Ki*(h/2)*(err+err_prev) + yi_prev;
   	yd = Kd*(err-err_prev) / h;
 
-
-	// Anti-winding integraattorille (https://codepal.ai/code-generator/query/MjweSyOx/pid-regulator-with-anti-windup)
+	// Anti-winding for integrator (https://codepal.ai/code-generator/query/MjweSyOx/pid-regulator-with-anti-windup)
 	if (yi > windupLimit) {
     		yi = windupLimit;
 	}
@@ -199,7 +203,7 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 	// Saturate the output of the controller
 	float unsat_out = yp + yi + yd;
 
-	PI_out = unsat_out; //toimiiko if tsydeemi t�ll� en oo yht�� varma??
+	PI_out = unsat_out; // IS THIS OK?
 
 	if (PI_out > u_max){
 		PI_out = u_max;
@@ -213,12 +217,6 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 	err_prev = err;
 
 	return PI_out;
-
-}
-
-
-void PWM_control(void){
-
 
 }
 

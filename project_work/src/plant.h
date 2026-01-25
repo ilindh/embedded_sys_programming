@@ -23,5 +23,6 @@
 /* Function Prototypes */
 // This allows other files (like main.c) to call your plant function
 void plant_model_task(void *pvParameters);
+void updatePWMBrightness(uint16_t Count_Value);
 
 #endif
