@@ -73,7 +73,7 @@ void ui_control_task(void *pvParameters){
                 // Button 2 - increase voltage
                 if (current_system_mode == MODE_MODULATION) {
                     increaseTargetVoltage(10);
-                    xil_printf("Target voltage increased by: +10!\r\n");
+                    xil_printf("Target voltage increased by: +10V!\r\n");
                 }
             }
 
@@ -81,7 +81,7 @@ void ui_control_task(void *pvParameters){
                 // Button 3 - decrease voltage
                 if (current_system_mode == MODE_MODULATION) {
                     decreaseTargetVoltage(10);
-                    xil_printf("Target voltage decreased by: -10!\r\n");
+                    xil_printf("Target voltage decreased by: -10V!\r\n");
                 }
             }
         }
