@@ -35,7 +35,7 @@ TickType_t xTaskGetTickCount(void);
 // Global variables for input and output.
 volatile float u_out_controller;
 
-static const int print_interval = 250;
+static const int print_interval = 500;
 static volatile int i_print = 0;
 
 // Static target voltage variable
@@ -135,9 +135,9 @@ void control_task(void *pvParameters) {
 	const TickType_t xInterval = pdMS_TO_TICKS(controller_interval);
 
 	// TEMPORARY fixed input.
-	float Kp = 10;
-	float Ki = 5;
-	float Kd = 0.00;
+	float Kp = 4.5;
+	float Ki = 6;
+	float Kd = 0.01;
 
 	xLastWakeTime = xTaskGetTickCount();
 
@@ -160,7 +160,7 @@ void control_task(void *pvParameters) {
 			xil_printf( "PI output [V]: %d \r\n", (int)u_out_controller); */
 
 			// xil_printf("\n");
-			xil_printf( "Rnd: %d | Tgt: %d | PI: %d | Plant: %d			\r\n", (int)xLastWakeTime, (int)u_ref, (int)u_out_controller, (int)u_meas);
+			xil_printf( "Rnd: %d (s) | Tgt: %d (mV) | PI: %d (mV) | Plant: %d (mV)			\r\n", (int)(xLastWakeTime/10000), (int)(u_ref*100), (int)(u_out_controller*100), (int)(u_meas*100));
 		}
 
 		i_print++;
@@ -184,7 +184,6 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 	float u_max = 400;
 	float u_min = 0;
 
-    //  err = ref � y;
 	err = u_ref-u_meas; // Calculate the error value
 
 	// Calculate yp, yi ja yd

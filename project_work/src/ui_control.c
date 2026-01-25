@@ -64,7 +64,7 @@ void ui_control_task(void *pvParameters){
                     setTargetVoltage(100);
                     xil_printf("Target voltage set to 100 V!\r\n");
                 } else {
-                	xil_printf("Button 1 pressed\n");
+                	xil_printf("\r\n\r\n");
                 }
 
         	}
