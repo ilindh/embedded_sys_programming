@@ -24,6 +24,9 @@
 #define max_out_plant 400
 #define min_out_plant 0
 
+// System Step response step target voltage
+#define step_voltage_tgt 400
+
 extern volatile float Ki;
 extern volatile float Kp;
 extern volatile float u_ref;
