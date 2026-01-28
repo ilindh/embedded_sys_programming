@@ -25,6 +25,7 @@
 #include <xttcps.h>
 #include <sleep.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 // Variables:
 
@@ -237,27 +238,27 @@ void control_task(void *pvParameters) {
 
 		setCurrentVoltage(PI_controller(u_meas, u_ref, Kd, Ki, Kp));
 
-		// Print only after print_interval
-		if(i_print == print_interval){
+		SystemMode_t current_mode = getSystemMode();
+
+		// Print only after print_interval and if modulation print is set as active
+		if( (i_print == print_interval)){
 
 			i_print = 0;
 
-			SystemMode_t current_mode = current_system_mode;
-
 			switch(current_mode){
 				case MODE_CONFIG:
-					xil_printf("Rnd: %d (s) | Kp: %d.%02d | Ki: %d.%02d | Kd: %d.%02d\r\n",
-						(int)(xLastWakeTime/10000),
+					xil_printf("\rCurrent Params: Kp: %d.%02d | Ki: %d.%02d | Kd: %d.%02d  | Plant: %d (mV)",
 						(int)Kp, (int)((Kp - (int)Kp) * 100),
 						(int)Ki, (int)((Ki - (int)Ki) * 100),
-						(int)Kd, (int)((Kd - (int)Kd) * 100));
+						(int)Kd, (int)((Kd - (int)Kd) * 100),
+						(int)(u_meas*1000));
 					break;
 				case MODE_MODULATION:
 					xil_printf("Rnd: %d (s) | Tgt: %d (mV) | PI: %d (mV) | Plant: %d (mV)\r\n",
 						(int)(xLastWakeTime/10000),
-						(int)(u_ref*100),
-						(int)(u_out_controller*100),
-						(int)(u_meas*100)); // Integer and decimal parts of Kd
+						(int)(u_ref*1000),
+						(int)(u_out_controller*1000),
+						(int)(u_meas*1000)); // Integer and decimal parts of Kd
 					break;
 				case MODE_IDLE:
 					break;

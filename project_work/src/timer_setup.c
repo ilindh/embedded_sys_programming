@@ -17,6 +17,7 @@ volatile u32* ptr_match_register = &TTC1_MATCH_0;
 /// @brief this function setups TIMER1 to be used for PWM led.
 // Timer0 is used for FreeRTOS tasking, do not use that!
 // This is copied and modified from course example!
+// EDIT: Timer0 / Counter0 is attached to RGB led in hardware files so I had to try the timer0, which worked after all.
 void SetupPWMTimer() {
 
 	// Two TTC module in the Zynq PS (TTC0 & TTC1)
@@ -67,31 +68,3 @@ void SetupPWMTimer() {
 	TTC0_CNT_CNTRL3 &= ~XTTCPS_CNT_CNTRL_DIS_MASK;
 
 }
-
-
-// We DONT want to use interrupt for the PWM led. It is not necessary!
-// We want to use only the Timer to
-/*
-void SetupPWMHandler(void) {
-	// Connect to the interrupt controller
-	xInterruptController.Config->HandlerTable[TTC_TICK_INTR_ID].Handler = (Xil_InterruptHandler)PWM_control;
-	// Enable the interrupt for the Timer counter
-	ICDISER1 = 1<<(TTC_TICK_INTR_ID % 32);			// XScuGic_Enable(&InterruptController, TTC_TICK_INTR_ID);
-
-	// Enable the interrupts for the tick timer/counter. We only care about the interval timeout.
-	TTC1_IER |= XTTCPS_IXR_INTERVAL_MASK;			// XTtcPs_EnableInterrupts(TtcPsTick, XTTCPS_IXR_INTERVAL_MASK);
-	// Start the tick timer/counter
-	// taken to main
-	TTC1_CNT_CNTRL &= ~XTTCPS_CNT_CNTRL_DIS_MASK;	// XTtcPs_Start(TtcPsTick);
-}
-
-
-// This is the original tickhandler.
-void TickHandler() {
-	// Read the interrupt status to clear the interrupt.
-	// TTC0_ISR: Triple Timer Counter (TTC) 0 - Interrupt Status Register (ISR)
-	TTC0_ISR; // Cleared on read
-
-	// AXI_LED_DATA ^= 0x8;
-
-}*/

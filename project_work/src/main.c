@@ -120,6 +120,8 @@
 SemaphoreHandle_t control_out_MUTEX;
 SemaphoreHandle_t u_out_plant_MUTEX;
 SemaphoreHandle_t u_ref_MUTEX;
+SemaphoreHandle_t sys_mode_MUTEX;
+
 
 TaskHandle_t control_task_handle;
 TaskHandle_t plant_model_task_handle;
@@ -152,7 +154,9 @@ int main( void ) {
 	control_out_MUTEX = xSemaphoreCreateMutex();
 	u_out_plant_MUTEX = xSemaphoreCreateMutex();
 	u_ref_MUTEX = xSemaphoreCreateMutex();
+    sys_mode_MUTEX = xSemaphoreCreateMutex();
 
+    xil_printf("\n\n");
 	xil_printf( "Control System starting... \r\n" );
 
 	/**

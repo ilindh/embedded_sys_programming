@@ -66,7 +66,6 @@ static void setCurrentVoltage(float u_out){
 	 }
 }
 
-
 /// @brief Calculates the plant response based on the input signal.
 /// @param u_in The input signal to the plant.
 /// @return The output response of the plant.
@@ -121,8 +120,8 @@ void plant_model_task(void *pvParameters) {
 		setCurrentVoltage(current_state[5]); // !NOT! defined locally (I.L.)
 
 		// Obtain brightness from the output voltage.
-		// Scaled from 0-> TARGET + 100 V and to the 16bit integer value
-		uint16_t LED_brightness = (uint16_t)((current_state[5]/(max_out_plant))*65000);
+		// Scaled from 0-> TARGET + 100 V and to the 16bit integer value (not anymore)
+		uint16_t LED_brightness = (uint16_t)((current_state[5]/(max_out_plant))*65532);
 
 		updatePWMBrightness(LED_brightness);
 
@@ -146,6 +145,6 @@ void updatePWMBrightness(uint16_t Count_Value){
 	// *ptr_register = match_value++;
 
 	TTC0_MATCH_1 = Count_Value;	// Order: R, G, B
-	TTC0_MATCH_1_COUNTER_2 = Count_Value >> 1; // Divided by 2
+	TTC0_MATCH_1_COUNTER_2 = (Count_Value >> 1); // Divided by 2
 	// TTC0_MATCH_1_COUNTER_3 = Count_Value >> 2; // Divided by 4
 }
