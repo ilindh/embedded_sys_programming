@@ -102,6 +102,7 @@ void Button_Handler(void){
         		// Button 1 - change parameter - NOT YET IMPLEMENTED
                 if (ui_local_mode == MODE_MODULATION) {
                     setTargetVoltage(step_voltage_tgt);
+                    xil_printf("\r\n");
                     xil_printf("Target voltage set to %d V!\r\n", step_voltage_tgt);
                 }
 

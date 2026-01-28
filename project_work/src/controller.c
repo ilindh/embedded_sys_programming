@@ -247,20 +247,23 @@ void control_task(void *pvParameters) {
 
 			switch(current_mode){
 				case MODE_CONFIG:
-					xil_printf("\rCurrent Params: Kp: %d.%02d | Ki: %d.%02d | Kd: %d.%02d  | Plant: %d (mV)",
+					xil_printf("\rCurrent Params: Kp: %d.%02d | Ki: %d.%02d | Kd: %d.%02d  | Plant: %d (mV)      ",
 						(int)Kp, (int)((Kp - (int)Kp) * 100),
 						(int)Ki, (int)((Ki - (int)Ki) * 100),
 						(int)Kd, (int)((Kd - (int)Kd) * 100),
 						(int)(u_meas*1000));
 					break;
 				case MODE_MODULATION:
-					xil_printf("Rnd: %d (s) | Tgt: %d (mV) | PI: %d (mV) | Plant: %d (mV)\r\n",
+					xil_printf("\rRnd: %d (s) | Tgt: %d (mV) | PI: %d (mV) | Plant: %d (mV)      ",
 						(int)(xLastWakeTime/10000),
 						(int)(u_ref*1000),
 						(int)(u_out_controller*1000),
 						(int)(u_meas*1000)); // Integer and decimal parts of Kd
 					break;
 				case MODE_IDLE:
+					xil_printf("\rRnd: %d (s) | Plant: %d (mV)      ",
+						(int)(xLastWakeTime/10000),
+						(int)(u_meas*1000)); // Integer and decimal parts of Kd
 					break;
 			}
 		}

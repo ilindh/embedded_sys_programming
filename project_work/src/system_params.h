@@ -23,9 +23,9 @@ extern TaskHandle_t plant_model_task_handle;
 extern TaskHandle_t ui_control_task_handle;
 
 
-// Task loop intervals in ms
+// Task loop intervals in ticks! Check tickrate for conversion to ms. Currently tickrate is probably 10 kHz
 #define controller_interval 1
-#define ui_interval 10
+#define ui_interval 100
 #define plant_interval 1
 
 // A flag used to control if modulation print is active or not
