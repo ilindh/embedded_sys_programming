@@ -102,10 +102,8 @@ void Button_Handler(void){
         		// Button 1 - change parameter - NOT YET IMPLEMENTED
                 if (ui_local_mode == MODE_MODULATION) {
                     setTargetVoltage(step_voltage_tgt);
-                    xil_printf("\r\n");
-                    xil_printf("Target voltage set to %d V!\r\n", step_voltage_tgt);
+                    xil_printf("\r\nTarget voltage set to %d V!\r\n", step_voltage_tgt);
                 }
-
                 else if (ui_local_mode == MODE_CONFIG) {
                 	toggleParameter();
                 	ConfigParam_t param = getSelectedParameter();
@@ -130,7 +128,7 @@ void Button_Handler(void){
                 // Button 2 - increase
                 if (ui_local_mode == MODE_MODULATION) {
                     increaseTargetVoltage(10);
-                    xil_printf("Target voltage increased by: +10V!\r\n");
+                    xil_printf("\r\nTarget voltage increased by: +10V!\r\n");
                 }
                 else if (ui_local_mode == MODE_CONFIG) {
 					increaseParameter(0.01);
@@ -152,7 +150,7 @@ void Button_Handler(void){
                 // Button 3 - decrease voltage
                 if (ui_local_mode == MODE_MODULATION) {
                     decreaseTargetVoltage(10);
-                    xil_printf("Target voltage decreased by: -10V!\r\n");
+                    xil_printf("\r\nTarget voltage decreased by: -10V!\r\n");
                 }
                 else if (ui_local_mode == MODE_CONFIG) {
 
