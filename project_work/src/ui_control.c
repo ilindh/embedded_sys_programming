@@ -85,7 +85,7 @@ void Button_Handler(void){
 		// NotificationValue contains the button that has caused the interrupt.
 		if (xTaskNotifyWait(0x00, 0xFFFFFFFF, &ulNotificationValue, 0) == pdTRUE) {
 
-			// IF BUTTON "1" IS PRESSED
+			// IF BUTTON "0" IS PRESSED
 			// WE CHANGE SYSTEM MODE:
         	if (ulNotificationValue & 0x01) {
                 // Button 0 - mode change
