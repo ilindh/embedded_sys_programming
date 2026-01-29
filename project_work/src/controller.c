@@ -280,7 +280,8 @@ void control_task(void *pvParameters) {
 /// @return PI controller output
 float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 
-	static float err, err_prev, yi_prev, yd_prev;
+	// static float err, err_prev_1, err_prev_2, yi_prev, yd_prev;
+	static float err, err_prev_1, err_prev_2, yi_prev;
 
 	// Define a proper value for windup!!!
 	static float windupLimit = 400;
@@ -291,12 +292,18 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 
 	err = u_ref-u_meas; // Calculate the error value
 
-	// Calculate yp, yi ja yd
+	// Calculate
+	// YP //
    	yp = Kp*err;
-   	yi = Ki*(h/2)*(err+err_prev) + yi_prev;
-  	yd = Kd*(err-err_prev) / h;
+   	// YI //
+   	yi = Ki*(h/2)*(err+err_prev_1) + yi_prev;
 
-	// Anti-winding for integrator (https://codepal.ai/code-generator/query/MjweSyOx/pid-regulator-with-anti-windup)
+   	// YD //
+   	// Calculate mean for the d to reduce noise.
+	float err_d = ((err-err_prev_1)+(err_prev_1-err_prev_2))/2;
+  	yd = Kd*(err_d) / h;
+
+  	// Anti-winding for integrator (https://codepal.ai/code-generator/query/MjweSyOx/pid-regulator-with-anti-windup)
 	if (yi > windupLimit) {
     		yi = windupLimit;
 	}
@@ -317,8 +324,9 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp) {
 
 	// Update the old values
    	yi_prev = yi;
-	yd_prev = yd;
-	err_prev = err;
+	// yd_prev = yd;
+	err_prev_2 = err_prev_1;
+	err_prev_1 = err;
 
 	return PI_out;
 
