@@ -81,123 +81,114 @@ static void setSystemMode(SystemMode_t new_sys_mode){
 
 void Button_Handler(void){
 
-		// IF THERE IS A BUTTON INTERRUPT ACTIVE:
-		// NotificationValue contains the button that has caused the interrupt.
-		if (xTaskNotifyWait(0x00, 0xFFFFFFFF, &ulNotificationValue, 0) == pdTRUE) {
+	// IF THERE IS A BUTTON INTERRUPT ACTIVE:
+	// NotificationValue contains the button that has caused the interrupt.
+	if (xTaskNotifyWait(0x00, 0xFFFFFFFF, &ulNotificationValue, 0) == pdTRUE) {
 
-			// IF BUTTON "0" IS PRESSED
-			// WE CHANGE SYSTEM MODE:
-        	if (ulNotificationValue & 0x01) {
-                // Button 0 - mode change
-				// Modulo "%" allows for looping and prevents overflow.
-				// We set the LOCAL version of the system mode. This is only used in this file.
-				// The local Should be in Sync with the "global" system mode, and through this
-				// the "global" system-mode is also updated!
-                setSystemMode( (SystemMode_t)((ui_local_mode + 1) % 3) );
-                xil_printf("\r\n\n");
-                xil_printf("System mode changed to: ");
-			
-			// ELSE WE OPERATE INSIDE THE MODES:
-			} else {
+		// IF BUTTON "0" IS PRESSED
+		// WE CHANGE SYSTEM MODE:
+		if (ulNotificationValue & 0x01) {
+			// Button 0 - mode change
+			// Modulo "%" allows for looping and prevents overflow.
+			// We set the LOCAL version of the system mode. This is only used in this file.
+			// The local Should be in Sync with the "global" system mode, and through this
+			// the "global" system-mode is also updated!
+			setSystemMode( (SystemMode_t)((ui_local_mode + 1) % 3) );
+			xil_printf("\r\n\n");
+			xil_printf("System mode changed to: ");
 
-				switch(ui_local_mode){
+		// ELSE WE OPERATE INSIDE THE MODES:
+		} else {
 
-					case MODE_MODULATION:
+			switch(ui_local_mode){
 
-						/* BUTTON "1" */
-						if (ulNotificationValue & 0x02) {
-							setTargetVoltage(step_voltage_tgt);
-							xil_printf("\r\n");
-							xil_printf("Target voltage set to %d V!\r\n", step_voltage_tgt);
-						
-						/* BUTTON "2" */
-						} else if (ulNotificationValue & 0x04){
-							increaseTargetVoltage(10);
-							xil_printf("Target voltage increased by: +10V!\r\n");
-						
-						/* BUTTON "3" */
-						} else if (ulNotificationValue & 0x08){
-							decreaseTargetVoltage(10);
-							xil_printf("Target voltage decreased by: -10V!\r\n");
-						} else {
-							// Nothing
-						}
+				case MODE_MODULATION:
+					/* BUTTON "1" */
+					if (ulNotificationValue & 0x02) {
+						setTargetVoltage(step_voltage_tgt);
+						xil_printf("\r\n");
+						xil_printf("Target voltage set to %d V!\r\n", step_voltage_tgt);
 
+					/* BUTTON "2" */
+					} else if (ulNotificationValue & 0x04){
+						increaseTargetVoltage(10);
+						xil_printf("\r\nTarget voltage increased by: +10V!\r\n");
+
+					/* BUTTON "3" */
+					} else if (ulNotificationValue & 0x08){
+						decreaseTargetVoltage(10);
+						xil_printf("\r\nTarget voltage decreased by: -10V!\r\n");
+					} else {
+						// Nothing
+					}
 					break;
 
-					case MODE_CONFIG:
-						
-						/* BUTTON "1" */
-						if (ulNotificationValue & 0x02) {
-							toggleParameter();
-							ConfigParam_t param = getSelectedParameter();
-							if(param == PARAM_KP) {
-								xil_printf("\r\nSelected parameter: [Kp]\r\n");
-							}
-							else if (param == PARAM_KI){
-								xil_printf("\r\nSelected parameter: [Ki]\r\n");
-							}
-							else {
-								xil_printf("\r\nSelected parameter: [Kd]\r\n");
-							}
-						
-						/* BUTTON "2" */
-						} else if (ulNotificationValue & 0x04){
-
-							increaseParameter(0.01);
-							ConfigParam_t param = getSelectedParameter();
-							if(param == PARAM_KP) {
-								// xil_printf("\r\nKp increased to: %d.%02d\r\n", (int)Kp, (int)((Kp - (int)Kp) * 100));
-							}
-							else if (param == PARAM_KI){
-								// xil_printf("\r\nKi increased to: %d.%02d\r\n", (int)Ki, (int)((Ki - (int)Ki) * 100));
-							}
-							else {
-								// xil_printf("\r\nKd increased to: %d.%02d\r\n", (int)Kd, (int)((Kd - (int)Kd) * 100));
-							}
-						
-						/* BUTTON "3" */
-						} else if (ulNotificationValue & 0x08){
-						
-							decreaseParameter(0.01);
-							ConfigParam_t param = getSelectedParameter();
-
-							if(param == PARAM_KP) {
-								// xil_printf("Kp decreased to: %d.%02d\r\n", (int)Kp, (int)((Kp - (int)Kp) * 100));
-							}
-							else if (param == PARAM_KI){
-								// xil_printf("Ki decreased to: %d.%02d\r\n", (int)Ki, (int)((Ki - (int)Ki) * 100));
-							}
-							else {
-								// xil_printf("Kd decreased to: %d.%02d\r\n", (int)Kd, (int)((Kd - (int)Kd) * 100));
-							}
-
-						} else {
-							xil_printf("\r\n\r\n");
+				case MODE_CONFIG:
+					/* BUTTON "1" */
+					if (ulNotificationValue & 0x02) {
+						toggleParameter();
+						ConfigParam_t param = getSelectedParameter();
+						if(param == PARAM_KP) {
+							xil_printf("\r\nSelected parameter: [Kp]\r\n");
 						}
-						
-					break;
+						else if (param == PARAM_KI){
+							xil_printf("\r\nSelected parameter: [Ki]\r\n");
+						}
+						else {
+							xil_printf("\r\nSelected parameter: [Kd]\r\n");
+						}
 					
-					case MODE_IDLE:
-						
-						/* BUTTON "1" */	
-						if (ulNotificationValue & 0x02) {
-						
-						
-						/* BUTTON "2" */
-						} else if (ulNotificationValue & 0x04){
-						
-						/* BUTTON "3" */
-						} else if (ulNotificationValue & 0x08){
+					/* BUTTON "2" */
+					} else if (ulNotificationValue & 0x04){
+						increaseParameter(0.01);
+						ConfigParam_t param = getSelectedParameter();
+						if(param == PARAM_KP) {
+							// xil_printf("\r\nKp increased to: %d.%02d\r\n", (int)Kp, (int)((Kp - (int)Kp) * 100));
+						}
+						else if (param == PARAM_KI){
+							// xil_printf("\r\nKi increased to: %d.%02d\r\n", (int)Ki, (int)((Ki - (int)Ki) * 100));
+						}
+						else {
+							// xil_printf("\r\nKd increased to: %d.%02d\r\n", (int)Kd, (int)((Kd - (int)Kd) * 100));
+						}
+					/* BUTTON "3" */
+					} else if (ulNotificationValue & 0x08){
+						decreaseParameter(0.01);
+						ConfigParam_t param = getSelectedParameter();
 
-						} else {
-							// Nothing
+						if(param == PARAM_KP) {
+							// xil_printf("Kp decreased to: %d.%02d\r\n", (int)Kp, (int)((Kp - (int)Kp) * 100));
+						}
+						else if (param == PARAM_KI){
+							// xil_printf("Ki decreased to: %d.%02d\r\n", (int)Ki, (int)((Ki - (int)Ki) * 100));
+						}
+						else {
+							// xil_printf("Kd decreased to: %d.%02d\r\n", (int)Kd, (int)((Kd - (int)Kd) * 100));
 						}
 
-						break;
-				}
+					} else {
+						xil_printf("\r\n\r\n");
+					}
+
+					break;
+
+				case MODE_IDLE:
+					/* BUTTON "1" */
+					if (ulNotificationValue & 0x02) {
+						// DO NOTHING
+					/* BUTTON "2" */
+					} else if (ulNotificationValue & 0x04){
+						// DO NOTHING
+					/* BUTTON "3" */
+					} else if (ulNotificationValue & 0x08){
+						// DO NOTHING
+					} else {
+						// Nothing
+					}
+					break;
 			}
 		}
+	}
 
 }
 
