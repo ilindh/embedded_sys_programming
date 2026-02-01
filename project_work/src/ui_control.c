@@ -64,7 +64,7 @@ SystemMode_t getSystemMode(void){
 }
 
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
-static void setSystemMode(SystemMode_t new_sys_mode){
+void setSystemMode(SystemMode_t new_sys_mode){
 
 	if( xSemaphoreTake(sys_mode_MUTEX, 5) == pdTRUE ) {
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
@@ -81,6 +81,14 @@ static void setSystemMode(SystemMode_t new_sys_mode){
 }
 
 void Button_Handler(void){
+
+	// Check if UART in config mode
+	if (xSemaphoreTake(uart_config_SEMAPHORE, 0) == pdFALSE) {
+		xTaskNotifyWait(0x00, 0xFFFFFFFF, &ulNotificationValue, 0);
+		return;
+	}
+	// release the semaphore immediately
+	xSemaphoreGive(uart_config_SEMAPHORE);
 
 	// IF THERE IS A BUTTON INTERRUPT ACTIVE:
 	// NotificationValue contains the button that has caused the interrupt.
@@ -203,11 +211,6 @@ void ui_control_task(void *pvParameters){
 
 	AXI_LED_TRI = 0; // Set all LEDs as output
 	AXI_LED_DATA = LED_MODE_CONFIG;
-
-	/* UART USAGE
-	UART_SendWelcomeMessage();
-	UART_SendPrompt();
-	*/
 
 	UART_SendHelp();
 

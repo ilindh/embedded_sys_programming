@@ -89,19 +89,15 @@ char uart_receive(void) {
 
 
 void UART_SendHelp(void) {
-    uart_send_string("\r\nAvailable Commands:\r\n");
-    uart_send_string("------------------\r\n");
-    uart_send_string("help          - Show this help message\r\n");
-    uart_send_string("status        - Show current system status\r\n");
-    uart_send_string("mode <0-2>    - Set mode (0=CONFIG, 1=IDLE, 2=MODULATION)\r\n");
-    uart_send_string("config        - Enter configuration mode\r\n");
-    uart_send_string("exit          - Exit configuration mode\r\n");
-    uart_send_string("\r\nIn Configuration Mode:\r\n");
-    uart_send_string("kp <value>    - Set Kp parameter (0-100)\r\n");
-    uart_send_string("ki <value>    - Set Ki parameter (0-100)\r\n");
-    uart_send_string("kd <value>    - Set Kd parameter (0-100)\r\n");
-    uart_send_string("tgt <value>   - Set target voltage (0-400 mV)\r\n");
-    uart_send_string("\r\n");
+
+	xil_printf("\r\nAvailable Commands\r\n");
+	xil_printf("------------------\r\n");
+	xil_printf("help            - Show this help message\r\n");
+	xil_printf("status          - Show current system status\r\n");
+	xil_printf("config			- Change to CONFIG mode\r\n");
+	xil_printf("modulation		- Change to MODULATION mode\r\n");
+	xil_printf("exit			- Exit to IDLE mode\r\n");
+	xil_printf("\r\n");
 }
 
 static void UART_ExecuteCommand(char* cmd) {
@@ -124,6 +120,33 @@ static void UART_ExecuteCommand(char* cmd) {
     // Command: help
     if (strcmp(token, "help") == 0) {
         UART_SendHelp();
+    }
+
+    else if (strcmp(token, "config") == 0){
+    	if (xSemaphoreTake(uart_config_SEMAPHORE, 0) == pdTRUE){
+    		uart_in_config = 1;
+    		xil_printf("\r\n");
+    		setSystemMode(MODE_CONFIG);
+            xil_printf("\r\nEntered CONFIG mode via UART\r\n");
+            xil_printf("Buttons are now blocked.\r\n");
+            xil_printf("Type 'exit' to leave configuration mode.\r\n");
+        } else {
+            xil_printf("\r\nERROR: Configuration mode already active!\r\n");
+        }
+    }
+    else if (strcmp(token, "modulation") == 0){
+    	xil_printf("\r\n");
+    	setSystemMode(MODE_MODULATION);
+    }
+    else if (strcmp(token, "exit") == 0){
+    	if (uart_in_config) {
+    		uart_in_config = 0;
+    		xSemaphoreGive(uart_config_SEMAPHORE);
+            xil_printf("\r\nExited CONFIG mode\r\n");
+            xil_printf("Buttons are now active again.\r\n");
+    	}
+    	xil_printf("\r\n");
+    	setSystemMode(MODE_IDLE);
     }
 }
 

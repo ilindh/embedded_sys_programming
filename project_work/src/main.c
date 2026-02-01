@@ -157,13 +157,11 @@ int main( void ) {
 	u_ref_MUTEX = xSemaphoreCreateMutex();
     sys_mode_MUTEX = xSemaphoreCreateMutex();
 
-    // Create binary semaphores for UART/button works
+    // Create binary semaphores for UART works
     uart_config_SEMAPHORE = xSemaphoreCreateBinary();
-    button_block_SEMAPHORE = xSemaphoreCreateBinary();
 
-    // Init semaphores to "available" state
+    // Init semaphore to "available" state
     xSemaphoreGive(uart_config_SEMAPHORE);
-    xSemaphoreGive(button_block_SEMAPHORE);
 
     xil_printf("\n\n");
 	xil_printf( "Control System starting... \r\n" );
