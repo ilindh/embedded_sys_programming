@@ -28,12 +28,6 @@
 
 // Function prototypes
 void SetupUART(void);
-/*
-void UART_ProcessInput(void);
-void UART_SendWelcomeMessage(void);
-void UART_SendPrompt(void);
-void UART_SendModeStatus(void);
-*/
 void UART_SendHelp(void);
 
 
@@ -41,7 +35,6 @@ void UART_SendHelp(void);
 void uart_send_char(char c);
 void uart_send_string(const char* str);
 char uart_receive(void);
-
 
 // External semaphore for UART config mode control
 extern SemaphoreHandle_t uart_config_SEMAPHORE;
