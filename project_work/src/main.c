@@ -109,6 +109,7 @@
 #include "controller.h"
 #include "plant.h"
 #include "ui_control.h"
+#include "uart_ui.h"
 #include "system_params.h"
 #include "zynq_registers.h"
 
@@ -141,7 +142,7 @@ int main( void ) {
 	AXI_BTN_TRI |= 0xF;
 
 	SetupInterrupts();
-	// SetupUART();
+	SetupUART(); // setup UART for UI usage - R.M.
 	// SetupUARTInterrupt();
 	SetupPWMTimer();
 	// SetupPWMHandler();
@@ -155,6 +156,14 @@ int main( void ) {
 	u_out_plant_MUTEX = xSemaphoreCreateMutex();
 	u_ref_MUTEX = xSemaphoreCreateMutex();
     sys_mode_MUTEX = xSemaphoreCreateMutex();
+
+    // Create binary semaphores for UART/button works
+    uart_config_SEMAPHORE = xSemaphoreCreateBinary();
+    button_block_SEMAPHORE = xSemaphoreCreateBinary();
+
+    // Init semaphores to "available" state
+    xSemaphoreGive(uart_config_SEMAPHORE);
+    xSemaphoreGive(button_block_SEMAPHORE);
 
     xil_printf("\n\n");
 	xil_printf( "Control System starting... \r\n" );

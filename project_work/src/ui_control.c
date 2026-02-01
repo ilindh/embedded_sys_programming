@@ -16,6 +16,7 @@
 
 #include "controller.h"
 #include "ui_control.h"
+#include "uart_ui.h"
 #include "system_params.h"
 
 /* LUT includes. */
@@ -25,7 +26,7 @@
 // LED Definition masks for UI feedback of system mode (M.H)
 #define LED_MODE_CONFIG 	0X01	// LED0
 #define LED_MODE_IDLE 		0X02   	// LED1
-#define LED_MODE_MODULATION 0X04 	// LED2 ? tarkista onko ok led 2 tuolla 0x04
+#define LED_MODE_MODULATION 0X04 	// LED2
 
 // global vartiable to ttrack current system mode (R.M)
 static volatile SystemMode_t current_system_mode = MODE_CONFIG;
@@ -203,7 +204,17 @@ void ui_control_task(void *pvParameters){
 	AXI_LED_TRI = 0; // Set all LEDs as output
 	AXI_LED_DATA = LED_MODE_CONFIG;
 
+	/* UART USAGE
+	UART_SendWelcomeMessage();
+	UART_SendPrompt();
+	*/
+
+	UART_SendHelp();
+
 	for(;;){
+
+		// Process any UART input
+		UART_ProcessInput();
 
 		// check if notify from button ISR
 		Button_Handler();
