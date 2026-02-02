@@ -22,6 +22,7 @@ void decreaseTargetVoltage(float step);
 void setTargetVoltage(float target_voltage);
 void increaseParameter(float step);
 void decreaseParameter(float step);
+void setParameter(int param, float target_value);
 void toggleParameter(void);
 
 typedef enum {

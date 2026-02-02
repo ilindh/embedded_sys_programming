@@ -58,6 +58,25 @@ ConfigParam_t getSelectedParameter(void){
 	return selected_param;
 }
 
+void setParameter(int param, float target_value){
+	if (param == PARAM_KP) {
+		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+			Kp = target_value;
+			xSemaphoreGive(u_ref_MUTEX);
+		}
+	} else if (param == PARAM_KI) {
+		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+			Ki = target_value;
+			xSemaphoreGive(u_ref_MUTEX);
+		}
+	} else if (param == PARAM_KD) {
+		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE) {
+			Kd = target_value;
+			xSemaphoreGive(u_ref_MUTEX);
+		}
+	}
+}
+
 // increase parameter function - R.M.
 /// @brief This function increases the selected parameter (Kp/Ki) by a specified step.
 /// @param step The amount by which to increase the selected parameter voltage.
@@ -248,9 +267,9 @@ void control_task(void *pvParameters) {
 			switch(current_mode){
 				case MODE_CONFIG:
 					xil_printf("\rCurrent Params: Kp: %d.%02d | Ki: %d.%02d | Kd: %d.%02d  | Plant: %d (mV)      ",
-						(int)Kp, (int)((Kp - (int)Kp) * 100),
-						(int)Ki, (int)((Ki - (int)Ki) * 100),
-						(int)Kd, (int)((Kd - (int)Kd) * 100),
+						(int)Kp, (int)((Kp - (int)Kp) * 100 + 0.5),
+						(int)Ki, (int)((Ki - (int)Ki) * 100 + 0.5),
+						(int)Kd, (int)((Kd - (int)Kd) * 100 + 0.5),
 						(int)(u_meas*1000));
 					break;
 				case MODE_MODULATION:
