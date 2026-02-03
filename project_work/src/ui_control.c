@@ -33,11 +33,6 @@ static volatile SystemMode_t current_system_mode = MODE_CONFIG;
 static volatile SystemMode_t ui_local_mode = MODE_CONFIG;
 static volatile SystemMode_t previous_mode = MODE_CONFIG;
 
-// A flag used to control if modulation print is active or not
-volatile int print_modulation = 0; //! NOT USED? - R.M
-// A flag used to control if UART UI print is active or not
-volatile int print_uart_ui = 0; //! NOT USED? - R.M
-
 // Variable that captures the button ISR value!
 static uint32_t ulNotificationValue;
 

@@ -54,29 +54,22 @@ volatile ConfigParam_t selected_param = PARAM_KP;
 /// @param target_value The value to set the parameter to.
 void setParameter(int param, float target_value)
 {
-	if (param == PARAM_KP)
+	if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
 	{
-		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
-		{
+		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
+
+		// change the param based on selected param
+		if (param == PARAM_KP){
 			Kp = target_value;
-			xSemaphoreGive(u_ref_MUTEX);
 		}
-	}
-	else if (param == PARAM_KI)
-	{
-		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
-		{
+		else if (param == PARAM_KI){
 			Ki = target_value;
-			xSemaphoreGive(u_ref_MUTEX);
 		}
-	}
-	else if (param == PARAM_KD)
-	{
-		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
-		{
+		else{
 			Kd = target_value;
-			xSemaphoreGive(u_ref_MUTEX);
 		}
+		xSemaphoreGive(u_ref_MUTEX);
+		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 }
 
@@ -99,90 +92,74 @@ ConfigParam_t getSelectedParameter(void)
 /// @param step The amount by which to increase the selected parameter voltage.
 void increaseParameter(float step)
 {
-	if (selected_param == PARAM_KP)
-	{
-		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
-		{
+	if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE){
+		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
+		if (selected_param == PARAM_KP){
 			float new_kp = Kp + step;
 			if (new_kp > 100.0)
 			{
 				new_kp = 100.0;
 			}
 			Kp = new_kp;
-			xSemaphoreGive(u_ref_MUTEX);
 		}
-	}
-	else if (selected_param == PARAM_KI)
-	{
-		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
-		{
+		else if (selected_param == PARAM_KI){
 			float new_ki = Ki + step;
 			if (new_ki > 100.0)
 			{
 				new_ki = 100.0;
 			}
 			Ki = new_ki;
-			xSemaphoreGive(u_ref_MUTEX);
 		}
-	}
-	else if (selected_param == PARAM_KD)
-	{
-		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
-		{
+		else if (selected_param == PARAM_KD){
 			float new_kd = Kd + step;
 			if (new_kd > 100.0)
 			{
 				new_kd = 100.0;
 			}
 			Kd = new_kd;
-			xSemaphoreGive(u_ref_MUTEX);
 		}
+		xSemaphoreGive(u_ref_MUTEX);
+		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 }
+
+
 // decrease parameter function - R.M.
 /// @brief This function decreases the selected parameter (Kp/Ki) by a specified step.
 /// @param step The amount by which to decreases the selected parameter voltage.
 void decreaseParameter(float step)
 {
-	if (selected_param == PARAM_KP)
-	{
-		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
-		{
+	if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE){
+		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
+		if (selected_param == PARAM_KP){
 			float new_kp = Kp - step;
 			if (new_kp < 0)
 			{
 				new_kp = 0;
 			}
 			Kp = new_kp;
-			xSemaphoreGive(u_ref_MUTEX);
 		}
-	}
-	else if (selected_param == PARAM_KI)
-	{
-		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
-		{
+		else if (selected_param == PARAM_KI) {
 			float new_ki = Ki - step;
 			if (new_ki < 0)
 			{
 				new_ki = 0;
 			}
 			Ki = new_ki;
-			xSemaphoreGive(u_ref_MUTEX);
 		}
-	}
-	else if (selected_param == PARAM_KD)
-	{
-		if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
-		{
+		else if (selected_param == PARAM_KD) {
 			float new_kd = Kd - step;
 			if (new_kd < 0)
 			{
 				new_kd = 0;
 			}
 			Kd = new_kd;
-			xSemaphoreGive(u_ref_MUTEX);
+
 		}
+		/* Access to the shared resource is complete, so the mutex is returned. */
+		xSemaphoreGive(u_ref_MUTEX);
 	}
+
 }
 
 // increase target voltage function - R.M.
@@ -192,6 +169,7 @@ void increaseTargetVoltage(float step)
 {
 	if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
 	{
+		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		float new_target = u_ref + step;
 		// Range checking
 		if (new_target > 400)
@@ -200,6 +178,7 @@ void increaseTargetVoltage(float step)
 		}
 		u_ref = new_target;
 		xSemaphoreGive(u_ref_MUTEX);
+		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 }
 // decrease target voltage function - R.M.
@@ -209,6 +188,7 @@ void decreaseTargetVoltage(float step)
 {
 	if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
 	{
+		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		float new_target = u_ref - step;
 		// Range checking
 		if (new_target < 0)
@@ -217,6 +197,7 @@ void decreaseTargetVoltage(float step)
 		}
 		u_ref = new_target;
 		xSemaphoreGive(u_ref_MUTEX);
+		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 }
 
@@ -225,6 +206,7 @@ void setTargetVoltage(float new_target)
 {
 	if (xSemaphoreTake(u_ref_MUTEX, 5) == pdTRUE)
 	{
+		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		// Range checking for the targetvoltage - R.M.
 		if (new_target < 0)
 		{
@@ -236,6 +218,7 @@ void setTargetVoltage(float new_target)
 		}
 		u_ref = new_target;
 		xSemaphoreGive(u_ref_MUTEX);
+		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 	else
 	{
@@ -250,9 +233,11 @@ static float getCurrentVoltage(void)
 
 	if (xSemaphoreTake(u_out_plant_MUTEX, 5) == pdTRUE)
 	{
+		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		float current_u_out = u_out_plant;
 		xSemaphoreGive(u_out_plant_MUTEX);
 		return current_u_out;
+		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 	else
 	{
@@ -268,8 +253,10 @@ static void setCurrentVoltage(float u_out)
 
 	if (xSemaphoreTake(control_out_MUTEX, 5) == pdTRUE)
 	{
+		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		u_out_controller = u_out;
 		xSemaphoreGive(control_out_MUTEX);
+		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 	else
 	{

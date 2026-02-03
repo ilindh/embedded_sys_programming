@@ -61,29 +61,6 @@ void SetupUART(void)
 	UART_CTRL = r;
 }
 
-/* //! REDACTED NOT USED FUNCTIONS
-// Send one character through UART interface
-void uart_send(char c) //! NOT USED
-{
-	while (UART_STATUS & XUARTPS_SR_TNFUL)
-	;
-	UART_FIFO = c;
-	while (UART_STATUS & XUARTPS_SR_TACTIVE)
-	;
-}
-
-// Send string (character array) through UART interface
-void uart_send_string(const char *str) //! NOT USED
-{
-	char *ptr = str;
-	while (*ptr != '\0')
-	{
-		uart_send(*ptr);
-		ptr++;
-	}
-}
-*/
-
 /// @brief Receive one character from UART interface receive FIFO
 char uart_receive(void)
 {
@@ -331,16 +308,6 @@ void UART_ProcessInput(void)
 		memset(rx_buffer, 0, UART_RX_BUFFER_SIZE);
 	}
 
-	/* //? SHOULD NOT BE NEEDED WITH NO LOCAL ECHO ?
-	else if (c == '\b' || c == 127)
-	{ // Backspace or DEL
-		if (rx_buffer_index > 0)
-		{
-			rx_buffer_index--;
-			// uart_send_string("\b \b"); // Erase character on terminal
-		}
-	}
-	*/
 	// Add character to buffer if space available
 	else if (rx_buffer_index < UART_RX_BUFFER_SIZE - 1)
 	{
