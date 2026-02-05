@@ -199,7 +199,7 @@ void ui_control_task(void *pvParameters)
 	{
 
 		// Process any UART input
-		UART_ProcessInput();
+		UART_InputHandler();
 
 		// check if notify from button ISR
 		Button_Handler();

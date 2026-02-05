@@ -71,5 +71,6 @@ extern SemaphoreHandle_t sys_mode_MUTEX;
 extern volatile float u_out_plant;
 extern volatile float u_out_controller;
 
+void SetupPWMTimer(void);
 
 #endif

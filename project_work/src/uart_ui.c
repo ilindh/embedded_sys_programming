@@ -24,9 +24,15 @@ static void UART_ExecuteCommand(char *cmd);
 void SetupUART(void)
 {
 	/*
+<<<<<<< Updated upstream
 	 * This code snippet is from Ex4_2023.pdf for setting up UART
 	 *  - R.M.
 	 */
+=======
+	* This code snippet is from Ex4_2023.pdf for setting up UART
+	*  - R.M. 
+	*/
+>>>>>>> Stashed changes
 
 	// TEmporary value variable
 	uint32_t r = 0;
@@ -61,11 +67,33 @@ void SetupUART(void)
 	UART_CTRL = r;
 }
 
+<<<<<<< Updated upstream
 /// @brief Receive one character from UART interface receive FIFO
 char uart_receive(void)
 {
 	if ((UART_STATUS & XUARTPS_SR_RXEMPTY) == XUARTPS_SR_RXEMPTY)
 	{
+=======
+// Send one character through UART interface
+void uart_send(char c) {
+	while (UART_STATUS & XUARTPS_SR_TNFUL);
+	UART_FIFO = c;
+	while (UART_STATUS & XUARTPS_SR_TACTIVE);
+}
+
+// Send string (character array) through UART interface
+void uart_send_string(const char* str) {
+	char *ptr = str;
+	while (*ptr != '\0') {
+		uart_send(*ptr);
+		ptr++;
+	}
+}
+
+// Check if UART receive FIFO is not empty and return the new data
+char uart_receive(void) {
+	if ((UART_STATUS & XUARTPS_SR_RXEMPTY) == XUARTPS_SR_RXEMPTY) {
+>>>>>>> Stashed changes
 		return 0;
 	}
 	return UART_FIFO;
@@ -118,200 +146,70 @@ static void UART_ExecuteCommand(char *cmd)
 		return;
 	}
 
-	// Command: help
-	if (strcmp(token, "help") == 0)
-	{
-		UART_SendHelp();
-	}
+    else if (strcmp(token, "config") == 0){
+    	if (xSemaphoreTake(uart_config_SEMAPHORE, 0) == pdTRUE){
+    		uart_in_config = 1;
+    		xil_printf("\r\n");
+    		setSystemMode(MODE_CONFIG);
+            xil_printf("\r\nEntered CONFIG mode via UART\r\n");
+            xil_printf("Buttons are now blocked.\r\n");
+            xil_printf("Type 'help' to view available commands.\r\n");
+            xil_printf("Type 'exit' to leave configuration mode.\r\n");
+        } else {
+            xil_printf("\r\nERROR: Configuration mode already active!\r\n");
+        }
+    }
 
-	// Command: config
-	else if (strcmp(token, "config") == 0)
-	{
-		// Try to take semaphore so that buttons are blocked
-		if (xSemaphoreTake(uart_config_SEMAPHORE, 0) == pdTRUE)
-		{
-			// Enter configuration mode
-			uart_in_config = 1;
-			xil_printf("\r\n");
-			setSystemMode(MODE_CONFIG);
-			xil_printf("\r\nEntered CONFIG mode via UART\r\n");
-			xil_printf("Buttons are now blocked.\r\n");
-			xil_printf("Type 'exit' to leave configuration mode.\r\n");
-		}
-		else
-		{
-			xil_printf("\r\nERROR: Configuration mode already active!\r\n");
-		}
-	}
+    else if (strcmp(token, "modulation") == 0){
+    	xil_printf("\r\n");
+    	setSystemMode(MODE_MODULATION);
+    }
 
-	// Command: modulation
-	else if (strcmp(token, "modulation") == 0)
-	{
-		// if in config mode, exit it first, releasing semaphore
-		if (uart_in_config)
-		{
-			uart_in_config = 0;
-			xSemaphoreGive(uart_config_SEMAPHORE);
-			xil_printf("\r\nExited CONFIG mode\r\n");
-			xil_printf("Buttons are now active again.\r\n");
-		}
-		xil_printf("\r\n");
-		setSystemMode(MODE_MODULATION);
-	}
-
-	// Command: exit
-	else if (strcmp(token, "exit") == 0)
-	{
-		// if in config mode, exit it first, releasing semaphore
-		if (uart_in_config)
-		{
-			uart_in_config = 0;
-			xSemaphoreGive(uart_config_SEMAPHORE);
-			xil_printf("\r\nExited CONFIG mode\r\n");
-			xil_printf("Buttons are now active again.\r\n");
-		}
-		// Exit to idle mode
-		xil_printf("\r\n");
-		setSystemMode(MODE_IDLE);
-	}
-
-	// Command: setparam
-	// set parameter value (only in config mode) kp, ki, kd from 0 to 100
-	// EXAMPLE setparam kp 50
-	else if (strcmp(token, "setparam") == 0)
-	{
-		// only if in config mode
-		if (uart_in_config)
-		{
-			// get the param and continue only if param is valid
-			param = strtok(NULL, " \t");
-			if (param != NULL)
-			{
-				param_val = -1;
-				if (strcmp(param, "kp") == 0)
-				{
-					param_val = PARAM_KP;
-				}
-				else if (strcmp(param, "ki") == 0)
-				{
-					param_val = PARAM_KI;
-				}
-				else if (strcmp(param, "kd") == 0)
-				{
-					param_val = PARAM_KD;
-				}
-				else
-				{
-					xil_printf("\r\nInvalid usage.\r\n");
-					return;
-				}
-
-				// get the value and continue only if valid
-				value_str = strtok(NULL, " \t");
-				if (value_str != NULL)
-				{
-					// convert to float and check range
-					value = atof(value_str);
-					if (value >= 0 && value <= 100)
-					{
-						// set parameter
-						setParameter(param_val, value);
-						xil_printf("\r\nParameter %s set to %d.%02d\r\n",
-								   param,
-								   (int)value, (int)((value - (int)value) * 100 + 0.5));
-					}
-					else
-					{
-						xil_printf("\r\nInvalid usage.\r\n");
-					}
-				}
-				else
-				{
-					xil_printf("\r\nInvalid usage.\r\n");
-				}
-			}
-			else
-			{
-				xil_printf("\r\nInvalid usage.\r\n");
-			}
-		}
-		else
-		{
-			xil_printf("\r\nNot in config mode.\r\n");
-		}
-	}
-
-	// Command: setvoltage
-	// set target voltage (only in modulation mode) from 0 to 400
-	// EXAMPLE setvoltage 250
-	else if (strcmp(token, "setvoltage") == 0)
-	{
-		// only if in modulation mode
-		if (getSystemMode() == MODE_MODULATION)
-		{
-			// get the value and continue only if valid
-			value_str = strtok(NULL, " \t");
-			if (value_str != NULL)
-			{
-				// convert to float and check range
-				value = atof(value_str);
-				if (value >= 0 && value <= 400)
-				{
-					// set target voltage
-					setTargetVoltage(value);
-					xil_printf("\r\nTarget voltage set to %s V\r\n", value_str);
-				}
-				else
-				{
-					xil_printf("\r\nInvalid usage.\r\n");
-				}
-			}
-			else
-			{
-				xil_printf("\r\nInvalid usage.\r\n");
-			}
-		}
-		else
-		{
-			xil_printf("\r\nNot in modulation mode.\r\n");
-		}
-	}
-	else
-	{
-		xil_printf("\r\nNot a command.\r\n");
-	}
+    else if (strcmp(token, "exit") == 0){
+    	if (uart_in_config) {
+    		uart_in_config = 0;
+    		xSemaphoreGive(uart_config_SEMAPHORE);
+            xil_printf("\r\nExited CONFIG mode\r\n");
+            xil_printf("Buttons are now active again.\r\n");
+    	}
+    	xil_printf("\r\n");
+    	setSystemMode(MODE_IDLE);
+    }
 }
 
-void UART_ProcessInput(void)
-{
-	// Read character from UART
-	char c = uart_receive();
+void UART_InputHandler(void) {
+    char c = uart_receive();
 
-	if (c == 0)
-	{
-		return; // No character received
-	}
+    if (c == 0) {
+        return; // No character received
 
-	// DO NOT Echo character back (with local echo)
-	if (c == '\r' || c == '\n')
-	{
-		// Null-terminate and process command
-		rx_buffer[rx_buffer_index] = '\0';
+    } else {
 
-		if (rx_buffer_index > 0)
-		{
-			UART_ExecuteCommand(rx_buffer);
+		// Echo character back (with local echo)
+		if (c == '\r' || c == '\n') {
+			// uart_send_string("\r\n");
+
+			// Null-terminate and process command
+			rx_buffer[rx_buffer_index] = '\0';
+
+			if (rx_buffer_index > 0) {
+				UART_ExecuteCommand(rx_buffer);
+			}
+
+			// Reset buffer
+			rx_buffer_index = 0;
+			memset(rx_buffer, 0, UART_RX_BUFFER_SIZE);
 		}
-
-		// Reset buffer
-		rx_buffer_index = 0;
-		memset(rx_buffer, 0, UART_RX_BUFFER_SIZE);
-	}
-
-	// Add character to buffer if space available
-	else if (rx_buffer_index < UART_RX_BUFFER_SIZE - 1)
-	{
-		// Add to buffer
-		rx_buffer[rx_buffer_index++] = c;
-	}
+		else if (c == '\b' || c == 127) { // Backspace or DEL
+			if (rx_buffer_index > 0) {
+				rx_buffer_index--;
+				// uart_send_string("\b \b"); // Erase character on terminal
+			}
+		}
+		else if (rx_buffer_index < UART_RX_BUFFER_SIZE - 1) {
+			// Add to buffer and echo
+			rx_buffer[rx_buffer_index++] = c;
+			// uart_send(c);
+		}
+    }
 }

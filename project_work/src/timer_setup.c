@@ -18,7 +18,7 @@ volatile u32* ptr_match_register = &TTC1_MATCH_0;
 // Timer0 is used for FreeRTOS tasking, do not use that!
 // This is copied and modified from course example!
 // EDIT: Timer0 / Counter0 is attached to RGB led in hardware files so I had to try the timer0, which worked after all.
-void SetupPWMTimer() {
+void SetupPWMTimer(void) {
 
 	// Two TTC module in the Zynq PS (TTC0 & TTC1)
 	// Each TTC module contains three independent 16-bit prescalers and 16-bit up/down counters (0,1,2)
