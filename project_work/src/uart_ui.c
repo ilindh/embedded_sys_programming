@@ -124,101 +124,117 @@ static void UART_ExecuteCommand(char *cmd)
 		UART_SendHelp();
 	}
 
-	// Command: config
-	else if (strcmp(token, "config") == 0)
-	{
-		// Try to take semaphore so that buttons are blocked
-		if (xSemaphoreTake(uart_config_SEMAPHORE, 0) == pdTRUE)
-		{
-			// Enter configuration mode
-			uart_in_config = 1;
-			xil_printf("\r\n");
-			setSystemMode(MODE_CONFIG);
-			xil_printf("\r\nEntered CONFIG mode via UART\r\n");
-			xil_printf("Buttons are now blocked.\r\n");
-			xil_printf("Type 'exit' to leave configuration mode.\r\n");
-		}
-		else
-		{
-			xil_printf("\r\nERROR: Configuration mode already active!\r\n");
-		}
-	}
 
-	// Command: modulation
-	else if (strcmp(token, "modulation") == 0)
-	{
-		// if in config mode, exit it first, releasing semaphore
-		if (uart_in_config)
-		{
-			uart_in_config = 0;
-			xSemaphoreGive(uart_config_SEMAPHORE);
-			xil_printf("\r\nExited CONFIG mode\r\n");
-			xil_printf("Buttons are now active again.\r\n");
-		}
-		xil_printf("\r\n");
-		setSystemMode(MODE_MODULATION);
-	}
+	// IF parameter semaphore is not taken, we can change params.
+	if( cooldown_semaphore_take() != pdTRUE){
+		// Debug:
+		xil_printf("Buttons are in use! UART blocked!\r\n");
+		return;
+	} 
 
-	// Command: exit
-	else if (strcmp(token, "exit") == 0)
-	{
-		// if in config mode, exit it first, releasing semaphore
-		if (uart_in_config)
+	// IF semaphore was successufully taken:
+	else {
+	// Release the semaphore immediately. We just want to check if we are allowed to use buttons!
+	xSemaphoreGive(cooldown_SEMAPHORE);
+	
+		// Command: config
+		if (strcmp(token, "config") == 0)
 		{
-			uart_in_config = 0;
-			xSemaphoreGive(uart_config_SEMAPHORE);
-			xil_printf("\r\nExited CONFIG mode\r\n");
-			xil_printf("Buttons are now active again.\r\n");
-		}
-		// Exit to idle mode
-		xil_printf("\r\n");
-		setSystemMode(MODE_IDLE);
-	}
-
-	// Command: setparam
-	// set parameter value (only in config mode) kp, ki, kd from 0 to 100
-	// EXAMPLE setparam kp 50
-	else if (strcmp(token, "setparam") == 0)
-	{
-		// only if in config mode
-		if (uart_in_config)
-		{
-			// get the param and continue only if param is valid
-			param = strtok(NULL, " \t");
-			if (param != NULL)
+			// Try to take semaphore so that buttons are blocked
+			if (xSemaphoreTake(uart_config_SEMAPHORE, 0) == pdTRUE)
 			{
-				param_val = -1;
-				if (strcmp(param, "kp") == 0)
-				{
-					param_val = PARAM_KP;
-				}
-				else if (strcmp(param, "ki") == 0)
-				{
-					param_val = PARAM_KI;
-				}
-				else if (strcmp(param, "kd") == 0)
-				{
-					param_val = PARAM_KD;
-				}
-				else
-				{
-					xil_printf("\r\nInvalid usage.\r\n");
-					return;
-				}
+				// Enter configuration mode
+				uart_in_config = 1;
+				xil_printf("\r\n");
+				setSystemMode(MODE_CONFIG);
+				xil_printf("\r\nEntered CONFIG mode via UART\r\n");
+				xil_printf("Buttons are now blocked.\r\n");
+				xil_printf("Type 'exit' to leave configuration mode.\r\n");
+			}
+			else
+			{
+				xil_printf("\r\nERROR: Configuration mode already active!\r\n");
+			}
+		}
 
-				// get the value and continue only if valid
-				value_str = strtok(NULL, " \t");
-				if (value_str != NULL)
-				{
-					// convert to float and check range
-					value = atof(value_str);
-					if (value >= 0 && value <= 100)
+		// Command: modulation
+		else if (strcmp(token, "modulation") == 0) {
+			// if in config mode, exit it first, releasing semaphore
+			if (uart_in_config)
+			{
+				uart_in_config = 0;
+				xSemaphoreGive(uart_config_SEMAPHORE);
+				xil_printf("\r\nExited CONFIG mode\r\n");
+				xil_printf("Buttons are now active again.\r\n");
+			}
+			xil_printf("\r\n");
+			setSystemMode(MODE_MODULATION);
+		}
+
+		// Command: exit
+		else if (strcmp(token, "exit") == 0)
+		{
+			// if in config mode, exit it first, releasing semaphore
+			if (uart_in_config)
+			{
+				uart_in_config = 0;
+				xSemaphoreGive(uart_config_SEMAPHORE);
+				xil_printf("\r\nExited CONFIG mode\r\n");
+				xil_printf("Buttons are now active again.\r\n");
+			}
+			// Exit to idle mode
+			xil_printf("\r\n");
+			setSystemMode(MODE_IDLE);
+		}
+
+		// Command: setparam
+		// set parameter value (only in config mode) kp, ki, kd from 0 to 100
+		// EXAMPLE setparam kp 50
+		else if (strcmp(token, "setparam") == 0)
+		{
+			// only if in config mode
+			if (uart_in_config) {
+				// get the param and continue only if param is valid
+				param = strtok(NULL, " \t");
+				if (param != NULL) {
+					
+					param_val = -1;
+					if (strcmp(param, "kp") == 0)
 					{
-						// set parameter
-						setParameter(param_val, value);
-						xil_printf("\r\nParameter %s set to %d.%02d\r\n",
-								   param,
-								   (int)value, (int)((value - (int)value) * 100 + 0.5));
+						param_val = PARAM_KP;
+					}
+					else if (strcmp(param, "ki") == 0)
+					{
+						param_val = PARAM_KI;
+					}
+					else if (strcmp(param, "kd") == 0)
+					{
+						param_val = PARAM_KD;
+					}
+					else
+					{
+						xil_printf("\r\nInvalid usage.\r\n");
+						return;
+					}
+
+					// get the value and continue only if valid
+					value_str = strtok(NULL, " \t");
+					if (value_str != NULL)
+					{
+						// convert to float and check range
+						value = atof(value_str);
+						if (value >= 0 && value <= 100)
+						{
+							// set parameter
+							setParameter(param_val, value);
+							xil_printf("\r\nParameter %s set to %d.%02d\r\n",
+									param,
+									(int)value, (int)((value - (int)value) * 100 + 0.5));
+						}
+						else
+						{
+							xil_printf("\r\nInvalid usage.\r\n");
+						}
 					}
 					else
 					{
@@ -232,34 +248,34 @@ static void UART_ExecuteCommand(char *cmd)
 			}
 			else
 			{
-				xil_printf("\r\nInvalid usage.\r\n");
+				xil_printf("\r\nNot in config mode.\r\n");
 			}
 		}
-		else
-		{
-			xil_printf("\r\nNot in config mode.\r\n");
-		}
-	}
 
-	// Command: setvoltage
-	// set target voltage (only in modulation mode) from 0 to 400
-	// EXAMPLE setvoltage 250
-	else if (strcmp(token, "setvoltage") == 0)
-	{
-		// only if in modulation mode
-		if (getSystemMode() == MODE_MODULATION)
+		// Command: setvoltage
+		// set target voltage (only in modulation mode) from 0 to 400
+		// EXAMPLE setvoltage 250
+		else if (strcmp(token, "setvoltage") == 0)
 		{
-			// get the value and continue only if valid
-			value_str = strtok(NULL, " \t");
-			if (value_str != NULL)
+			// only if in modulation mode
+			if (getSystemMode() == MODE_MODULATION)
 			{
-				// convert to float and check range
-				value = atof(value_str);
-				if (value >= 0 && value <= 400)
+				// get the value and continue only if valid
+				value_str = strtok(NULL, " \t");
+				if (value_str != NULL)
 				{
-					// set target voltage
-					setTargetVoltage(value);
-					xil_printf("\r\nTarget voltage set to %s V\r\n", value_str);
+					// convert to float and check range
+					value = atof(value_str);
+					if (value >= 0 && value <= 400)
+					{
+						// set target voltage
+						setTargetVoltage(value);
+						xil_printf("\r\nTarget voltage set to %s V\r\n", value_str);
+					}
+					else
+					{
+						xil_printf("\r\nInvalid usage.\r\n");
+					}
 				}
 				else
 				{
@@ -268,17 +284,13 @@ static void UART_ExecuteCommand(char *cmd)
 			}
 			else
 			{
-				xil_printf("\r\nInvalid usage.\r\n");
+				xil_printf("\r\nNot in modulation mode.\r\n");
 			}
 		}
 		else
 		{
-			xil_printf("\r\nNot in modulation mode.\r\n");
+			xil_printf("\r\nNot a command.\r\n");
 		}
-	}
-	else
-	{
-		xil_printf("\r\nNot a command.\r\n");
 	}
 }
 

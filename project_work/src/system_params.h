@@ -15,6 +15,7 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
+#include "timers.h"
 
 // Task handles
 // Used for what?
@@ -61,12 +62,17 @@ typedef enum {
 
 // FUnction prototype. This getter allows other files to retreive the system mode securely!
 extern SystemMode_t getSystemMode(void);
-
+extern BaseType_t cooldown_semaphore_take(void);
+extern void cooldown_timer_callback(TimerHandle_t cooldown_timer);
 
 extern SemaphoreHandle_t control_out_MUTEX;
 extern SemaphoreHandle_t u_out_plant_MUTEX;
 extern SemaphoreHandle_t u_ref_MUTEX;
 extern SemaphoreHandle_t sys_mode_MUTEX;
+
+// Cooldown mutex stuff:
+extern SemaphoreHandle_t cooldown_SEMAPHORE;
+extern TimerHandle_t cooldown_timer;
 
 extern volatile float u_out_plant;
 extern volatile float u_out_controller;

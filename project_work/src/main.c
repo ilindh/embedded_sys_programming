@@ -113,6 +113,8 @@
 #include "system_params.h"
 #include "zynq_registers.h"
 
+#include "timers.h"
+
 // Interrupt:
 
 #include <xscugic.h>
@@ -123,6 +125,9 @@ SemaphoreHandle_t u_out_plant_MUTEX;
 SemaphoreHandle_t u_ref_MUTEX;
 SemaphoreHandle_t sys_mode_MUTEX;
 
+// Cooldown mutex stuff:
+SemaphoreHandle_t cooldown_SEMAPHORE;
+TimerHandle_t cooldown_timer;
 
 TaskHandle_t control_task_handle;
 TaskHandle_t plant_model_task_handle;
@@ -133,6 +138,8 @@ extern XScuGic xInterruptController;
 
 // Function decalarations
 void SetupInterrupts();
+
+
 
 
 int main( void ) {
@@ -148,6 +155,14 @@ int main( void ) {
 	// SetupPWMHandler();
 	SetupPushButtons();
 
+    // From: FreeRTOS_Reference_Manual_V10.0.0.pdf -I.L
+    // Here we are creating the timer for the Timer Mutex.
+    // This is used to lock buttons and / or UART for 5s after parameter change.
+    cooldown_timer = xTimerCreate("Cooldown Timer", 
+        pdMS_TO_TICKS(5000), // 5000 ms = 5s.
+        pdFALSE, NULL, cooldown_timer_callback);
+
+
 	// AXI_BTN_TRI |= 0xF; 		// Set direction for buttons 0..3 ,  0 means output, 1 means input
 	// AXI_LED_TRI = ~0xF;		// Set direction for bits 0-3 to output for the LEDs !!! REMOVED BY (R.M and M.H) done in ui_control.c
 
@@ -157,6 +172,11 @@ int main( void ) {
 	u_ref_MUTEX = xSemaphoreCreateMutex();
     sys_mode_MUTEX = xSemaphoreCreateMutex();
 
+
+    // Create and release semaphore immediately.
+    cooldown_SEMAPHORE = xSemaphoreCreateBinary();
+    xSemaphoreGive(cooldown_SEMAPHORE);
+    
     // Create binary semaphores for UART works
     uart_config_SEMAPHORE = xSemaphoreCreateBinary();
 
