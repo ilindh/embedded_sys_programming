@@ -22,6 +22,8 @@
 #include "zynq_registers.h"
 #include <stdbool.h>
 
+#include "timers.h"
+
 // LED Definition masks for UI feedback of system mode (M.H)
 #define LED_MODE_CONFIG 0X01	 // LED0
 #define LED_MODE_IDLE 0X02		 // LED1
@@ -78,6 +80,32 @@ void setSystemMode(SystemMode_t new_sys_mode)
 	}
 }
 
+
+/// @brief When TIMER semaphore is taken, it starts a 5s timer with FreeRTOS function.
+// Timer calls automatically the timer callback that releases the sempahore.
+// Claude AI was used to help in figuring out the logic for this timed MUTEX. Implementation is by me. -I.L.
+// BaseType_t is the FreeRTOS "base" type for messaging if a function was success or not (pdTRUE / pdFALSE).
+// If the timed mutex is taken and another task tries to use it, zero wait time but FALSE is returned.
+BaseType_t cooldown_semaphore_take(void){
+
+	if (xSemaphoreTake(cooldown_SEMAPHORE, 0) == pdTRUE){
+		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
+		return pdTRUE;
+		// Semaphore taken!
+		/* Access to the shared resource is complete, so the mutex is returned. */
+	} else {
+		// xil_printf("Error fetching the timer semaphore.");
+		return pdFALSE;
+	}
+}
+
+void cooldown_timer_callback(TimerHandle_t cooldown_timer){
+	xSemaphoreGive(cooldown_SEMAPHORE);
+	return;
+}
+
+// static uint32_t cooldown_flag = false;
+
 void Button_Handler(void)
 {
 	// Check if UART in config mode, if UART is in config mode, then buttons are disabled -> not handled -> return
@@ -93,11 +121,24 @@ void Button_Handler(void)
 	// NotificationValue contains the button that has caused the interrupt.
 	if (xTaskNotifyWait(0x00, 0xFFFFFFFF, &ulNotificationValue, 0) == pdTRUE)
 	{
-
+		// IF parameter semaphore is not taken, we can change params.
+		
+		if(cooldown_semaphore_take() == pdFALSE){
+			xTimerReset(cooldown_timer, 0);
+			xil_printf("\r\nDBG: Button cooldown resetted... \r\n");
+		} else {
+			// From FreeRTOS_Reference_Manual_V10.0.0.pdf -I.L.
+			if(xTimerStart(cooldown_timer, 0 ) == pdPASS){
+				/* The timer could not be set into the Active state. */
+				xil_printf("\r\nDBG: Button 5s cooldown started... \r\n");
+			} else {
+				xil_printf("Error starting the timer.");
+			}
+		}
+		
 		// IF BUTTON "0" IS PRESSED
 		// WE CHANGE SYSTEM MODE:
-		if (ulNotificationValue & 0x01)
-		{
+		if (ulNotificationValue & 0x01){
 			// Button 0 - mode change
 			// Modulo "%" allows for looping and prevents overflow.
 			// We set the LOCAL version of the system mode. This is only used in this file.

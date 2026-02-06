@@ -279,10 +279,18 @@ void control_task(void *pvParameters)
 	{ // Same as while(1) or while(true)
 
 		float u_meas = getCurrentVoltage();
+		// Reset = 0 (final parameter)
 
-		setCurrentVoltage(PI_controller(u_meas, u_ref, Kd, Ki, Kp));
-
+		// Get motherfucker
 		SystemMode_t current_mode = getSystemMode();
+
+		if(current_mode == MODE_MODULATION){
+			setCurrentVoltage(PI_controller(u_meas, u_ref, Kd, Ki, Kp, 0));
+		} else {
+			// ZERO THE SYSTEM!!
+			PI_controller(0,0,0,0,0,1);
+			setCurrentVoltage(0);
+		}
 
 		// Print only after print_interval and if modulation print is set as active
 		if ((i_print == print_interval))
@@ -300,6 +308,7 @@ void control_task(void *pvParameters)
 						   (int)(u_meas * 1000));
 				break;
 			case MODE_MODULATION:
+				// Write new controller output value to plant:
 				xil_printf("\rRnd: %d (s) | Tgt: %d (mV) | PI: %d (mV) | Plant: %d (mV)      ",
 						   (int)(xLastWakeTime / 10000),
 						   (int)(u_ref * 1000),
@@ -323,16 +332,29 @@ void control_task(void *pvParameters)
 /// @brief This is the PID controller function
 /// @param Kp (proportional), Ki (integrative), Kd (derivative), ref (?), y (?) h (?)
 /// @return PI controller output
-float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp)
-{
+float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset){
 
 	// static float err, err_prev_1, err_prev_2, yi_prev, yd_prev;
 	static float err, err_prev_1, err_prev_2, yi_prev;
 
 	// Define a proper value for windup!!!
-	static float windupLimit = 400;
+	// Go slightly above u max to ensure system with losses can reach target value.
+	static float windupLimit = 405;
 	static float yp, yi, yd, PI_out;
 
+	// If reset command sent, reset all!
+	if(reset){
+		err = 0;
+		err_prev_1 = 0;
+		err_prev_2 = 0;
+		yi_prev = 0;
+		yp = 0;
+		yi = 0;
+		yd = 0;
+		PI_out = 0;
+	}
+
+	// Juho fucking fix this shit:
 	float u_max = 400;
 	float u_min = 0;
 

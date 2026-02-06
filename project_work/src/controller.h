@@ -34,6 +34,6 @@ typedef enum {
 ConfigParam_t getSelectedParameter(void);
 
 void control_task(void *pvParameters);
-float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp);
+float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset);
 void PWM_control(void);
 #endif
