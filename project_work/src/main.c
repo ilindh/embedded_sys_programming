@@ -139,9 +139,6 @@ extern XScuGic xInterruptController;
 // Function decalarations
 void SetupInterrupts();
 
-
-
-
 int main( void ) {
 
 	// Set LEDs as output
@@ -218,6 +215,9 @@ int main( void ) {
 
 	// Start the tasks and timer running.
 	// https://www.freertos.org/a00132.html
+
+	xil_printf("\r\nCurrent system mode: CONFIG\r\n");
+
 	vTaskStartScheduler();
 
 	for( ;; );

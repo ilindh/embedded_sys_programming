@@ -128,7 +128,7 @@ static void UART_ExecuteCommand(char *cmd)
 	// IF parameter semaphore is not taken, we can change params.
 	if( cooldown_semaphore_take() != pdTRUE){
 		// Debug:
-		xil_printf("Buttons are in use! UART blocked!\r\n");
+		xil_printf("\r\nButtons are in use! Serial terminal blocked!\r\n");
 		return;
 	} 
 

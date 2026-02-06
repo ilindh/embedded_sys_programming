@@ -52,7 +52,6 @@ extern volatile float u_ref;
 // the getSystemMode-function! (I.L)
 // extern volatile SystemMode_t current_system_mode;
 
-
 // System modes for UI (R.M)
 typedef enum {
     MODE_CONFIG = 0,
