@@ -30,36 +30,35 @@ static const float B_matrix[6][1] = {{0.0471},
 // This was changed from [6][1] to [6] because the [1] seemed redundant and produced an error
 static float current_state[6] = 		{0,0,0,0,0,0};
 
-// Global variables for input and output.
-volatile float u_out_plant;
+// STATICV variables for input and output.
+static volatile float u_out_plant;
 
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
-static float getCurrentVoltage(void){
+/// This function allows other tasks to access the Plant output voltage variable
+float getPlantOutputVoltage(void){
 
-	if( xSemaphoreTake(control_out_MUTEX, 5) == pdTRUE ) {
+	if (xSemaphoreTake(u_out_plant_MUTEX, 5) == pdTRUE){
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
-		float current_u_in = u_out_controller;
-		xSemaphoreGive(control_out_MUTEX);
-		return current_u_in;
+		float current_plant_voltage = u_out_plant;
+		xSemaphoreGive(u_out_plant_MUTEX);
+		return current_plant_voltage;
 		/* Access to the shared resource is complete, so the mutex is returned. */
-
-	 } else {
-		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
-
-		 xil_printf( "Error while retreiving the controller output.");
-		 return 0;
-	 }
+	} else {
+		// error getting the mutex
+		xil_printf("\r\nError while retreiving the plant voltage.\r\n");
+		return 0;
+	}
 }
 
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
-static void setCurrentVoltage(float u_out){
+/// This function allows for setting the plant output voltage without anyone reading the data at the same time
+static void setPlantOutputVoltage(float u_out){
 
 	if( xSemaphoreTake(u_out_plant_MUTEX, 5) == pdTRUE ) {
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		u_out_plant = u_out;
 		xSemaphoreGive(u_out_plant_MUTEX);
 		/* Access to the shared resource is complete, so the mutex is returned. */
-
 	 } else {
 		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
 		 xil_printf( "Error while setting the plant output.");
@@ -93,7 +92,7 @@ void plant_model_task(void *pvParameters) {
 		// Get a local copy for calculation.
 		// If u_in is changed by controller mid calculation bad stuff will happen.
 
-		float temp_u_in = getCurrentVoltage();
+		float temp_u_in = getCurrentControllerVoltage();
 
 		// DEBUG:
 		// float temp_u_in = 100; // Forced input without controller.
@@ -117,7 +116,7 @@ void plant_model_task(void *pvParameters) {
 		arm_add_f32(Ax_result, Bu_result, current_state, 6);
 
 		// the output u_out
-		setCurrentVoltage(current_state[5]); // !NOT! defined locally (I.L.)
+		setPlantOutputVoltage(current_state[5]); // !NOT! defined locally (I.L.)
 
 		// Obtain brightness from the output voltage.
 		// Scaled from 0-> TARGET + 100 V and to the 16bit integer value (not anymore)

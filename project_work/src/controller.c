@@ -33,7 +33,7 @@ float h = (float)controller_interval / 1000.0;
 TickType_t xTaskGetTickCount(void);
 
 // Global variables for input and output.
-volatile float u_out_controller;
+static volatile float u_out_controller;
 
 static const int print_interval = 500;
 static volatile int i_print = 0;
@@ -133,12 +133,10 @@ void increaseParameter(float step)
 	}
 }
 
-
 // decrease parameter function - R.M.
 /// @brief This function decreases the selected parameter (Kp/Ki) by a specified step.
 /// @param step The amount by which to decreases the selected parameter voltage.
-void decreaseParameter(float step)
-{
+void decreaseParameter(float step){
 	if (xSemaphoreTake(controller_MUTEX, 5) == pdTRUE){
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		if (selected_param == PARAM_KP){
@@ -250,27 +248,25 @@ void setTargetVoltage(float new_target)
 }
 
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
-static float getCurrentVoltage(void)
-{
+/// This function allows other tasks to access the controller voltage variable
+float getCurrentControllerVoltage(void){
 
-	if (xSemaphoreTake(u_out_plant_MUTEX, 5) == pdTRUE)
-	{
+	if( xSemaphoreTake(control_out_MUTEX, 5) == pdTRUE ) {
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
-		float current_u_out = u_out_plant;
-		xSemaphoreGive(u_out_plant_MUTEX);
-		return current_u_out;
+		float controller_voltage = u_out_controller;
+		xSemaphoreGive(control_out_MUTEX);
+		return controller_voltage;
 		/* Access to the shared resource is complete, so the mutex is returned. */
-	}
-	else
-	{
-		// error getting the mutex
-		xil_printf("\r\nError while retreiving the plant voltage.\r\n");
-		return u_ref;
-	}
+
+	 } else {
+		 /* The mutex could not be obtained even after waiting 5 ticks, so the shared resource cannot be accessed. */
+		 xil_printf( "Error while retreiving the controller output.");
+		 return 0;
+	 }
 }
 
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
-static void setCurrentVoltage(float u_out)
+static void setControllerOutputVoltage(float u_out)
 {
 
 	if (xSemaphoreTake(control_out_MUTEX, 5) == pdTRUE)
@@ -300,18 +296,18 @@ void control_task(void *pvParameters)
 	for (;;)
 	{ // Same as while(1) or while(true)
 
-		float u_meas = getCurrentVoltage();
+		float u_meas = getPlantOutputVoltage();
 		// Reset = 0 (final parameter)
 
 		// Get motherfucker
 		SystemMode_t current_mode = getSystemMode();
 
 		if(current_mode == MODE_MODULATION){
-			setCurrentVoltage(PI_controller(u_meas, u_ref, Kd, Ki, Kp, 0, &controller_state));
+			setControllerOutputVoltage(PI_controller(u_meas, u_ref, Kd, Ki, Kp, 0, &controller_state));
 		} else {
 			// ZERO THE SYSTEM!!
 			PI_controller(0,0,0,0,0,1, &controller_state);
-			setCurrentVoltage(0);
+			setControllerOutputVoltage(0);
 		}
 
 		// Print only after print_interval and if modulation print is set as active
