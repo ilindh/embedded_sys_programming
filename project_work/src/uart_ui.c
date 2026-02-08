@@ -134,8 +134,8 @@ static void UART_ExecuteCommand(char *cmd)
 
 	// IF semaphore was successufully taken:
 	else {
-	// Release the semaphore immediately. We just want to check if we are allowed to use buttons!
-	xSemaphoreGive(cooldown_SEMAPHORE);
+		// Release the semaphore immediately. We just want to check if we are allowed to use buttons!
+		xSemaphoreGive(cooldown_SEMAPHORE);
 	
 		// Command: config
 		if (strcmp(token, "config") == 0)
@@ -145,6 +145,7 @@ static void UART_ExecuteCommand(char *cmd)
 			{
 				// Enter configuration mode
 				uart_in_config = 1;
+				XGpio_InterruptDisable(&BTNS_SWTS, 0xF); // Disable button interrupts
 				xil_printf("\r\n");
 				setSystemMode(MODE_CONFIG);
 				xil_printf("\r\nEntered CONFIG mode via UART\r\n");
@@ -163,6 +164,7 @@ static void UART_ExecuteCommand(char *cmd)
 			if (uart_in_config)
 			{
 				uart_in_config = 0;
+				XGpio_InterruptEnable(&BTNS_SWTS, 0xF); // Enable button interrupts
 				xSemaphoreGive(uart_config_SEMAPHORE);
 				xil_printf("\r\nExited CONFIG mode\r\n");
 				xil_printf("Buttons are now active again.\r\n");
@@ -178,6 +180,7 @@ static void UART_ExecuteCommand(char *cmd)
 			if (uart_in_config)
 			{
 				uart_in_config = 0;
+				XGpio_InterruptEnable(&BTNS_SWTS, 0xF); // Enable button interrupts
 				xSemaphoreGive(uart_config_SEMAPHORE);
 				xil_printf("\r\nExited CONFIG mode\r\n");
 				xil_printf("Buttons are now active again.\r\n");

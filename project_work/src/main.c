@@ -122,7 +122,7 @@
 
 SemaphoreHandle_t control_out_MUTEX;
 SemaphoreHandle_t u_out_plant_MUTEX;
-SemaphoreHandle_t u_ref_MUTEX;
+SemaphoreHandle_t controller_MUTEX;
 SemaphoreHandle_t sys_mode_MUTEX;
 
 // Cooldown mutex stuff:
@@ -166,7 +166,7 @@ int main( void ) {
 	// Create MUTEX instances.
 	control_out_MUTEX = xSemaphoreCreateMutex();
 	u_out_plant_MUTEX = xSemaphoreCreateMutex();
-	u_ref_MUTEX = xSemaphoreCreateMutex();
+	controller_MUTEX = xSemaphoreCreateMutex();
     sys_mode_MUTEX = xSemaphoreCreateMutex();
 
 

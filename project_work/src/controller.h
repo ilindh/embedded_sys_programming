@@ -17,6 +17,8 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
+#include "system_params.h"
+
 void increaseTargetVoltage(float step);
 void decreaseTargetVoltage(float step);
 void setTargetVoltage(float target_voltage);
@@ -34,6 +36,6 @@ typedef enum {
 ConfigParam_t getSelectedParameter(void);
 
 void control_task(void *pvParameters);
-float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset);
+float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset, PIDControllerState_t *state);
 void PWM_control(void);
 #endif
