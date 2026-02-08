@@ -66,6 +66,12 @@ typedef struct {
 	float PI_out;
 } PIDControllerState_t;
 
+typedef enum {
+    PARAM_KP = 0,
+    PARAM_KI = 1,
+	PARAM_KD = 2
+} ConfigParam_t;
+
 // FUnction prototype. This getter allows other files to retreive the system mode securely!
 extern SystemMode_t getSystemMode(void);
 extern BaseType_t cooldown_semaphore_take(void);
