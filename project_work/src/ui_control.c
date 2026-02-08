@@ -125,14 +125,14 @@ void Button_Handler(void)
 		
 		if(cooldown_semaphore_take() == pdFALSE){
 			xTimerReset(cooldown_timer, 0);
-			xil_printf("\r\nDBG: Button cooldown resetted... \r\n");
+			//xil_printf("\r\nDBG: Button cooldown resetted... \r\n");
 		} else {
 			// From FreeRTOS_Reference_Manual_V10.0.0.pdf -I.L.
 			if(xTimerStart(cooldown_timer, 0 ) == pdPASS){
 				/* The timer could not be set into the Active state. */
-				xil_printf("\r\nDBG: Button 5s cooldown started... \r\n");
+				//xil_printf("\r\nDBG: Button 5s cooldown started... \r\n");
 			} else {
-				xil_printf("Error starting the timer.");
+				xil_printf("Error starting the UART block timer.");
 			}
 		}
 		
