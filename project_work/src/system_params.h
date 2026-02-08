@@ -80,8 +80,10 @@ extern SemaphoreHandle_t sys_mode_MUTEX;
 extern SemaphoreHandle_t cooldown_SEMAPHORE;
 extern TimerHandle_t cooldown_timer;
 
-extern volatile float u_out_plant;
-extern volatile float u_out_controller;
+// extern volatile float u_out_plant;
+// extern volatile float u_out_controller;
 
+float getCurrentControllerVoltage(void);
+float getPlantOutputVoltage(void);
 
 #endif
