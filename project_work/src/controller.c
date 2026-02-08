@@ -46,6 +46,8 @@ static float Kp = 4.5;
 static float Ki = 6.0;
 static float Kd = 0.01;
 
+// Controller state structure.
+// !STATIC!
 static PIDControllerState_t controller_state = {0};
 
 volatile ConfigParam_t selected_param = PARAM_KP;
