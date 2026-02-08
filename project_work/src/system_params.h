@@ -29,6 +29,9 @@ extern TaskHandle_t ui_control_task_handle;
 #define ui_interval 100
 #define plant_interval 1
 
+// Windup limit for the controller
+#define WINDUP_LIMIT 405.0f
+
 // A flag used to control if modulation print is active or not
 // REPLACED WITH GLOBAL SYSTEM MODES!
 // extern volatile int print_modulation;
