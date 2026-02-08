@@ -351,11 +351,6 @@ void control_task(void *pvParameters)
 /// @param Kp (proportional), Ki (integrative), Kd (derivative), ref (?), y (?) h (?)
 /// @return PI controller output
 float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset, PIDControllerState_t *state){
-	
-	// Define a proper value for windup!!!
-	// Go slightly above u max to ensure system with losses can reach target value.
-	static float windupLimit = 405;
-	
 
 	// If reset command sent, reset all!
 	if(reset){
@@ -387,13 +382,13 @@ float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uin
 	state->yd = Kd * (err_d) / h;
 
 	// Anti-winding for integrator (https://codepal.ai/code-generator/query/MjweSyOx/pid-regulator-with-anti-windup)
-	if (state->yi > windupLimit)
+	if (state->yi > WINDUP_LIMIT)
 	{
-		state->yi = windupLimit;
+		state->yi = WINDUP_LIMIT;
 	}
-	else if (state->yi < -windupLimit)
+	else if (state->yi < -WINDUP_LIMIT)
 	{
-		state->yi = -windupLimit;
+		state->yi = -WINDUP_LIMIT;
 	}
 
 	// Saturate the output of the controller

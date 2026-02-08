@@ -27,12 +27,6 @@ void decreaseParameter(float step);
 void setParameter(int param, float target_value);
 void toggleParameter(void);
 
-typedef enum {
-    PARAM_KP = 0,
-    PARAM_KI = 1,
-	PARAM_KD = 2
-} ConfigParam_t;
-
 ConfigParam_t getSelectedParameter(void);
 
 void control_task(void *pvParameters);

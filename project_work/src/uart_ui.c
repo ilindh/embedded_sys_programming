@@ -302,17 +302,19 @@ void UART_ProcessInput(void)
 	// Read character from UART
 	char c = uart_receive();
 
+	// No character received
 	if (c == 0)
 	{
-		return; // No character received
+		return;
 	}
 
-	// DO NOT Echo character back (with local echo)
+	// if character is newline
 	if (c == '\r' || c == '\n')
 	{
 		// Null-terminate and process command
 		rx_buffer[rx_buffer_index] = '\0';
 
+		// if no more chars, execute the command
 		if (rx_buffer_index > 0)
 		{
 			UART_ExecuteCommand(rx_buffer);

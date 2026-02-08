@@ -29,6 +29,9 @@ extern TaskHandle_t ui_control_task_handle;
 #define ui_interval 100
 #define plant_interval 1
 
+// Windup limit for the controller
+#define WINDUP_LIMIT 405.0f
+
 // A flag used to control if modulation print is active or not
 // REPLACED WITH GLOBAL SYSTEM MODES!
 // extern volatile int print_modulation;
@@ -65,6 +68,12 @@ typedef struct {
 	float yd;
 	float PI_out;
 } PIDControllerState_t;
+
+typedef enum {
+    PARAM_KP = 0,
+    PARAM_KI = 1,
+	PARAM_KD = 2
+} ConfigParam_t;
 
 // FUnction prototype. This getter allows other files to retreive the system mode securely!
 extern SystemMode_t getSystemMode(void);
