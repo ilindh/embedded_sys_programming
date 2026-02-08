@@ -22,6 +22,9 @@
 /* LUT includes. */
 #include "zynq_registers.h"
 
+#include <xgpio.h>
+extern XGpio BTNS_SWTS;
+
 // Buffer sizes
 #define UART_RX_BUFFER_SIZE 64
 #define UART_COMMAND_BUFFER_SIZE 32

@@ -41,10 +41,6 @@ extern TaskHandle_t ui_control_task_handle;
 
 // System Step response step target voltage
 #define step_voltage_tgt 400
-extern volatile float Ki;
-extern volatile float Kp;
-extern volatile float Kd;
-extern volatile float u_ref;
 
 
 // CANNOT BE extern. The true current sysmode is protected in the ui_control.c file. 
@@ -59,6 +55,17 @@ typedef enum {
     MODE_MODULATION = 2
 } SystemMode_t;
 
+typedef struct {
+	float err;
+	float err_prev_1;
+	float err_prev_2;
+	float yi_prev;
+	float yp;
+	float yi;
+	float yd;
+	float PI_out;
+} PIDControllerState_t;
+
 // FUnction prototype. This getter allows other files to retreive the system mode securely!
 extern SystemMode_t getSystemMode(void);
 extern BaseType_t cooldown_semaphore_take(void);
@@ -66,7 +73,7 @@ extern void cooldown_timer_callback(TimerHandle_t cooldown_timer);
 
 extern SemaphoreHandle_t control_out_MUTEX;
 extern SemaphoreHandle_t u_out_plant_MUTEX;
-extern SemaphoreHandle_t u_ref_MUTEX;
+extern SemaphoreHandle_t controller_MUTEX;
 extern SemaphoreHandle_t sys_mode_MUTEX;
 
 // Cooldown mutex stuff:
