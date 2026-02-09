@@ -1,7 +1,7 @@
 # Embedded System Programming Project
 
 ## Overview
-This repository contains the source code and resources for an embedded system programming project. The main codebase is located in the `project_work/src/` directory. The project is designed for ARM-based platforms and includes hardware-specific drivers, control logic, and user interface components.
+This repository contains the source code and resources for an embedded system programming project. The main codebase is located in the `project_work/src/` directory. The project is designed for ARM-based platforms and includes hardware-specific drivers, control logic, and user interface components. You can find the video format showcase from the following link: https://youtu.be/ZqAyeGitqN4.
 
 ## Directory Structure
 - **project_work/src/**: Main source code for the project, including:
