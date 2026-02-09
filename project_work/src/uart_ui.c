@@ -75,11 +75,12 @@ char uart_receive(void)
 void UART_SendHelp(void)
 {
 
-	xil_printf("\r\nAvailable Commands\r\n");
+	xil_printf("\r\nAvailable Serial Commands\r\n");
 	xil_printf("------------------\r\n");
 	xil_printf("help            - Show this help message\r\n");
 	xil_printf("config			- Change to CONFIG mode\r\n");
 	xil_printf("modulation		- Change to MODULATION mode\r\n");
+	xil_printf("idle			- Change to IDLE mode\r\n");
 	xil_printf("exit			- Exit to IDLE mode\r\n");
 	xil_printf("------------------\r\n");
 	xil_printf("Following commands available only in config mode:\r\n");
@@ -119,9 +120,11 @@ static void UART_ExecuteCommand(char *cmd)
 	}
 
 	// Command: help
-	if (strcmp(token, "help") == 0)
-	{
+	if (strcmp(token, "help") == 0){
 		UART_SendHelp();
+		// Just print help message.
+		// This can be printed even if button cooldown is active, because why not?
+		return;
 	}
 
 
@@ -136,24 +139,24 @@ static void UART_ExecuteCommand(char *cmd)
 	else {
 		// Release the semaphore immediately. We just want to check if we are allowed to use buttons!
 		xSemaphoreGive(cooldown_SEMAPHORE);
-	
+
+		//if(getSystemMode)
+
 		// Command: config
-		if (strcmp(token, "config") == 0)
-		{
+		// BLOCK BUTTONS ONLY HERE!
+		if (strcmp(token, "config") == 0){
 			// Try to take semaphore so that buttons are blocked
-			if (xSemaphoreTake(uart_config_SEMAPHORE, 0) == pdTRUE)
-			{
+			if (xSemaphoreTake(uart_config_SEMAPHORE, 0) == pdTRUE){
 				// Enter configuration mode
 				uart_in_config = 1;
 				XGpio_InterruptDisable(&BTNS_SWTS, 0xF); // Disable button interrupts
 				xil_printf("\r\n");
 				setSystemMode(MODE_CONFIG);
 				xil_printf("\r\nEntered CONFIG mode via UART\r\n");
-				xil_printf("Buttons are now blocked.\r\n");
-				xil_printf("Type 'exit' to leave configuration mode.\r\n");
-			}
-			else
-			{
+				xil_printf("Use 'setparam' to configure PID parameters.\r\n");
+				xil_printf("Buttons are now blocked!\r\n");
+				xil_printf("Type 'exit' to leave config mode.\r\n");
+			} else {
 				xil_printf("\r\nERROR: Configuration mode already active!\r\n");
 			}
 		}
@@ -166,25 +169,44 @@ static void UART_ExecuteCommand(char *cmd)
 				uart_in_config = 0;
 				XGpio_InterruptEnable(&BTNS_SWTS, 0xF); // Enable button interrupts
 				xSemaphoreGive(uart_config_SEMAPHORE);
-				xil_printf("\r\nExited CONFIG mode\r\n");
-				xil_printf("Buttons are now active again.\r\n");
+				xil_printf("Buttons are now active.\r\n");
 			}
+
+			xil_printf("\r\nEntered MODULATION mode via UART\r\n");
 			xil_printf("\r\n");
 			setSystemMode(MODE_MODULATION);
 		}
 
-		// Command: exit
-		else if (strcmp(token, "exit") == 0)
-		{
+		// Command: IDLE
+		else if (strcmp(token, "idle") == 0) {
 			// if in config mode, exit it first, releasing semaphore
 			if (uart_in_config)
 			{
 				uart_in_config = 0;
 				XGpio_InterruptEnable(&BTNS_SWTS, 0xF); // Enable button interrupts
 				xSemaphoreGive(uart_config_SEMAPHORE);
-				xil_printf("\r\nExited CONFIG mode\r\n");
-				xil_printf("Buttons are now active again.\r\n");
+				xil_printf("Buttons are now active.\r\n");
 			}
+
+			xil_printf("\r\nEntered IDLE mode via UART\r\n");
+
+			xil_printf("\r\n");
+			setSystemMode(MODE_IDLE);
+		}
+
+		// Command: exit
+		else if (strcmp(token, "exit") == 0)
+		{
+			// if in config mode, exit it first, releasing semaphore
+			if (uart_in_config){
+				uart_in_config = 0;
+				XGpio_InterruptEnable(&BTNS_SWTS, 0xF); // Enable button interrupts
+				xSemaphoreGive(uart_config_SEMAPHORE);
+				xil_printf("\r\nExited config mode\r\n");
+			}
+
+			xil_printf("Buttons are now active.\r\n");
+
 			// Exit to idle mode
 			xil_printf("\r\n");
 			setSystemMode(MODE_IDLE);

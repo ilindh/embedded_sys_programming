@@ -41,7 +41,7 @@ static volatile int i_print = 0;
 // volatile target voltage variable
 volatile float u_ref = 0;
 
-// variables for the Kp and Ki parameters
+// Default values / variables for the Kp and Ki parameters
 static float Kp = 4.5;
 static float Ki = 6.0;
 static float Kd = 0.01;
@@ -286,8 +286,7 @@ static void setControllerOutputVoltage(float u_out)
 }
 
 /// @brief This is the Controller Task function
-void control_task(void *pvParameters)
-{
+void control_task(void *pvParameters){
 
 	TickType_t xLastWakeTime;
 	const TickType_t xInterval = pdMS_TO_TICKS(controller_interval);
@@ -305,10 +304,10 @@ void control_task(void *pvParameters)
 		SystemMode_t current_mode = getSystemMode();
 
 		if(current_mode == MODE_MODULATION){
-			setControllerOutputVoltage(PI_controller(u_meas, u_ref, Kd, Ki, Kp, 0, &controller_state));
+			setControllerOutputVoltage(PID_controller(u_meas, u_ref, Kd, Ki, Kp, 0, &controller_state));
 		} else {
 			// ZERO THE SYSTEM!!
-			PI_controller(0,0,0,0,0,1, &controller_state);
+			PID_controller(0,0,0,0,0,1, &controller_state);
 			setControllerOutputVoltage(0);
 		}
 
@@ -352,7 +351,7 @@ void control_task(void *pvParameters)
 /// @brief This is the PID controller function
 /// @param Kp (proportional), Ki (integrative), Kd (derivative), ref (?), y (?) h (?)
 /// @return PI controller output
-float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset, PIDControllerState_t *state){
+float PID_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset, PIDControllerState_t *state){
 
 	// If reset command sent, reset all!
 	if(reset){

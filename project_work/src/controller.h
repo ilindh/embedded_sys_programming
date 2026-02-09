@@ -30,6 +30,6 @@ void toggleParameter(void);
 ConfigParam_t getSelectedParameter(void);
 
 void control_task(void *pvParameters);
-float PI_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset, PIDControllerState_t *state);
+float PID_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset, PIDControllerState_t *state);
 void PWM_control(void);
 #endif
