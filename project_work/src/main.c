@@ -116,23 +116,22 @@
 #include "timers.h"
 
 // Interrupt:
-
 #include <xscugic.h>
 
 
 SemaphoreHandle_t control_out_MUTEX;
 SemaphoreHandle_t u_out_plant_MUTEX;
-SemaphoreHandle_t controller_MUTEX;
+SemaphoreHandle_t controller_params_MUTEX;
 SemaphoreHandle_t sys_mode_MUTEX;
 
 // Cooldown mutex stuff:
 SemaphoreHandle_t cooldown_SEMAPHORE;
 TimerHandle_t cooldown_timer;
 
+// Task handles
 TaskHandle_t control_task_handle;
 TaskHandle_t plant_model_task_handle;
 TaskHandle_t ui_control_task_handle;
-
 
 extern XScuGic xInterruptController;
 
@@ -166,7 +165,7 @@ int main( void ) {
 	// Create MUTEX instances.
 	control_out_MUTEX = xSemaphoreCreateMutex();
 	u_out_plant_MUTEX = xSemaphoreCreateMutex();
-	controller_MUTEX = xSemaphoreCreateMutex();
+	controller_params_MUTEX = xSemaphoreCreateMutex();
     sys_mode_MUTEX = xSemaphoreCreateMutex();
 
 

@@ -18,13 +18,11 @@
 #include "timers.h"
 
 // Task handles
-// Used for what?
 extern TaskHandle_t control_task_handle;
 extern TaskHandle_t plant_model_task_handle;
 extern TaskHandle_t ui_control_task_handle;
 
-
-// Task loop intervals in ticks! Check tickrate for conversion to ms. Currently tickrate is probably 10 kHz
+// Task loop intervals in ticks! Check tickrate for conversion to ms. Currently tickrate is 10 kHz -> 1 tick = 1/10 000 s -> 0.1 ms.
 #define controller_interval 1
 #define ui_interval 100
 #define plant_interval 1
@@ -33,7 +31,7 @@ extern TaskHandle_t ui_control_task_handle;
 #define WINDUP_LIMIT 405.0f
 
 // A flag used to control if modulation print is active or not
-// REPLACED WITH GLOBAL SYSTEM MODES!
+// REPLACED WITH "GLOBAL" SYSTEM MODES!
 // extern volatile int print_modulation;
 // extern volatile int print_uart_ui;
 
@@ -82,7 +80,7 @@ extern void cooldown_timer_callback(TimerHandle_t cooldown_timer);
 
 extern SemaphoreHandle_t control_out_MUTEX;
 extern SemaphoreHandle_t u_out_plant_MUTEX;
-extern SemaphoreHandle_t controller_MUTEX;
+extern SemaphoreHandle_t controller_params_MUTEX;
 extern SemaphoreHandle_t sys_mode_MUTEX;
 
 // Cooldown mutex stuff:

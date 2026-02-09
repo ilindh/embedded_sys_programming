@@ -140,7 +140,7 @@ static void UART_ExecuteCommand(char *cmd)
 		// Release the semaphore immediately. We just want to check if we are allowed to use buttons!
 		xSemaphoreGive(cooldown_SEMAPHORE);
 
-		//if(getSystemMode)
+		/* PARSE BY TOKENS */
 
 		// Command: config
 		// BLOCK BUTTONS ONLY HERE!
@@ -273,7 +273,7 @@ static void UART_ExecuteCommand(char *cmd)
 			}
 			else
 			{
-				xil_printf("\r\nNot in config mode.\r\n");
+				xil_printf("\r\nNot in Serial Config mode. Type 'config' first! \r\n");
 			}
 		}
 
@@ -309,7 +309,7 @@ static void UART_ExecuteCommand(char *cmd)
 			}
 			else
 			{
-				xil_printf("\r\nNot in modulation mode.\r\n");
+				xil_printf("\r\n Not in modulation mode. Voltage not set! \r\n");
 			}
 		}
 		else

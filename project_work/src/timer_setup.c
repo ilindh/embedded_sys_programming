@@ -12,7 +12,7 @@
 /* Based on the Course Example file. */
 
 // Pointer to the register value that controls brightness
-volatile u32* ptr_match_register = &TTC1_MATCH_0;
+// volatile u32* ptr_match_register = &TTC1_MATCH_0;
 
 /// @brief this function setups TIMER1 to be used for PWM led.
 // Timer0 is used for FreeRTOS tasking, do not use that!

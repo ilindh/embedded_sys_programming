@@ -39,7 +39,7 @@ static const int print_interval = 500;
 static volatile int i_print = 0;
 
 // volatile target voltage variable
-volatile float u_ref = 0;
+static volatile float u_ref = 0;
 
 // Default values / variables for the Kp and Ki parameters
 static float Kp = 4.5;
@@ -58,7 +58,7 @@ volatile ConfigParam_t selected_param = PARAM_KP;
 /// @param target_value The value to set the parameter to.
 void setParameter(int param, float target_value)
 {
-	if (xSemaphoreTake(controller_MUTEX, 5) == pdTRUE)
+	if (xSemaphoreTake(controller_params_MUTEX, 5) == pdTRUE)
 	{
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 
@@ -72,7 +72,7 @@ void setParameter(int param, float target_value)
 		else{
 			Kd = target_value;
 		}
-		xSemaphoreGive(controller_MUTEX);
+		xSemaphoreGive(controller_params_MUTEX);
 		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 	else{
@@ -100,7 +100,7 @@ ConfigParam_t getSelectedParameter(void)
 /// @param step The amount by which to increase the selected parameter voltage.
 void increaseParameter(float step)
 {
-	if (xSemaphoreTake(controller_MUTEX, 5) == pdTRUE){
+	if (xSemaphoreTake(controller_params_MUTEX, 5) == pdTRUE){
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		if (selected_param == PARAM_KP){
 			float new_kp = Kp + step;
@@ -126,7 +126,7 @@ void increaseParameter(float step)
 			}
 			Kd = new_kd;
 		}
-		xSemaphoreGive(controller_MUTEX);
+		xSemaphoreGive(controller_params_MUTEX);
 		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 	else{
@@ -139,7 +139,7 @@ void increaseParameter(float step)
 /// @brief This function decreases the selected parameter (Kp/Ki) by a specified step.
 /// @param step The amount by which to decreases the selected parameter voltage.
 void decreaseParameter(float step){
-	if (xSemaphoreTake(controller_MUTEX, 5) == pdTRUE){
+	if (xSemaphoreTake(controller_params_MUTEX, 5) == pdTRUE){
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		if (selected_param == PARAM_KP){
 			float new_kp = Kp - step;
@@ -167,7 +167,7 @@ void decreaseParameter(float step){
 
 		}
 		/* Access to the shared resource is complete, so the mutex is returned. */
-		xSemaphoreGive(controller_MUTEX);
+		xSemaphoreGive(controller_params_MUTEX);
 	}
 	else{
 		// error getting the mutex
@@ -181,7 +181,7 @@ void decreaseParameter(float step){
 /// @param step The amount by which to increase the target voltage.
 void increaseTargetVoltage(float step)
 {
-	if (xSemaphoreTake(controller_MUTEX, 5) == pdTRUE)
+	if (xSemaphoreTake(controller_params_MUTEX, 5) == pdTRUE)
 	{
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		float new_target = u_ref + step;
@@ -191,7 +191,7 @@ void increaseTargetVoltage(float step)
 			new_target = 400;
 		}
 		u_ref = new_target;
-		xSemaphoreGive(controller_MUTEX);
+		xSemaphoreGive(controller_params_MUTEX);
 		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 	else{
@@ -204,7 +204,7 @@ void increaseTargetVoltage(float step)
 /// @param step The amount by which to decrease the target voltage.
 void decreaseTargetVoltage(float step)
 {
-	if (xSemaphoreTake(controller_MUTEX, 5) == pdTRUE)
+	if (xSemaphoreTake(controller_params_MUTEX, 5) == pdTRUE)
 	{
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		float new_target = u_ref - step;
@@ -214,7 +214,7 @@ void decreaseTargetVoltage(float step)
 			new_target = 0;
 		}
 		u_ref = new_target;
-		xSemaphoreGive(controller_MUTEX);
+		xSemaphoreGive(controller_params_MUTEX);
 		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 	else{
@@ -226,7 +226,7 @@ void decreaseTargetVoltage(float step)
 /// @brief This function allows for setting the target voltage with MUTEXes implemented.
 void setTargetVoltage(float new_target)
 {
-	if (xSemaphoreTake(controller_MUTEX, 5) == pdTRUE)
+	if (xSemaphoreTake(controller_params_MUTEX, 5) == pdTRUE)
 	{
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		// Range checking for the targetvoltage - R.M.
@@ -239,7 +239,7 @@ void setTargetVoltage(float new_target)
 			new_target = 400;
 		}
 		u_ref = new_target;
-		xSemaphoreGive(controller_MUTEX);
+		xSemaphoreGive(controller_params_MUTEX);
 		/* Access to the shared resource is complete, so the mutex is returned. */
 	}
 	else
@@ -271,15 +271,12 @@ float getCurrentControllerVoltage(void){
 static void setControllerOutputVoltage(float u_out)
 {
 
-	if (xSemaphoreTake(control_out_MUTEX, 5) == pdTRUE)
-	{
+	if (xSemaphoreTake(control_out_MUTEX, 5) == pdTRUE) {
 		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
 		u_out_controller = u_out;
 		xSemaphoreGive(control_out_MUTEX);
 		/* Access to the shared resource is complete, so the mutex is returned. */
-	}
-	else
-	{
+	} else {
 		// error getting the mutex
 		xil_printf("\nError while setting the controller output.\n");
 	}
@@ -349,7 +346,7 @@ void control_task(void *pvParameters){
 }
 
 /// @brief This is the PID controller function
-/// @param Kp (proportional), Ki (integrative), Kd (derivative), ref (?), y (?) h (?)
+/// @param plant voltage, ref voltage, Kp, Ki, Kd, ref, reset, PID state structure
 /// @return PI controller output
 float PID_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset, PIDControllerState_t *state){
 
@@ -365,7 +362,7 @@ float PID_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, ui
 		state->PI_out = 0;
 	}
 
-	// Juho fucking fix this shit:
+	// Saturation limits
 	float u_max = 400.0;
 	float u_min = 0.0;
 
@@ -392,10 +389,10 @@ float PID_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, ui
 		state->yi = -WINDUP_LIMIT;
 	}
 
-	// Saturate the output of the controller
 	float unsat_out = state->yp + state->yi + state->yd;
 
-	state->PI_out = unsat_out; // IS THIS OK?
+	// Saturate the output of the controller
+	state->PI_out = unsat_out;
 
 	if (state->PI_out > u_max)
 	{

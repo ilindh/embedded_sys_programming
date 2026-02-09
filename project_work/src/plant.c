@@ -124,7 +124,7 @@ void plant_model_task(void *pvParameters) {
 
 		updatePWMBrightness(LED_brightness);
 
-		// return u_out; // Don't return nothing. We use global variables and semaphores to transfer data in  the system.
+		// return u_out; // Don't return nothing. We use "global" (protected) variables and semaphores to transfer data in  the system.
 
 		// This function ensures stable loop time.
 		vTaskDelayUntil(&xLastWakeTime, xInterval);
@@ -143,6 +143,7 @@ void updatePWMBrightness(uint16_t Count_Value){
 	// const u32* ptr_match_register = &TTC0_MATCH_0;
 	// *ptr_register = match_value++;
 
+	// Here we adjust the counter count value to have an effect on the PWM output to the RGB LED
 	TTC0_MATCH_1 = Count_Value;	// Order: R, G, B
 	TTC0_MATCH_1_COUNTER_2 = (Count_Value >> 1); // Divided by 2
 	// TTC0_MATCH_1_COUNTER_3 = Count_Value >> 2; // Divided by 4

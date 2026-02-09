@@ -39,14 +39,14 @@ static volatile SystemMode_t previous_mode = MODE_CONFIG;
 static uint32_t ulNotificationValue;
 
 // Target voltage for step changes
-float tgt = 0;
+static float tgt = 0;
 
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
 SystemMode_t getSystemMode(void)
 {
 	if (xSemaphoreTake(sys_mode_MUTEX, 5) == pdTRUE)
 	{
-		/* The mutex was successfully obtained so the shared resource can beaccessed safely. */
+		/* The mutex was successfully obtained so the shared resource can be accessed safely. */
 		xSemaphoreGive(sys_mode_MUTEX);
 		return current_system_mode;
 		/* Access to the shared resource is complete, so the mutex is returned. */
@@ -83,7 +83,7 @@ void setSystemMode(SystemMode_t new_sys_mode)
 
 /// @brief When TIMER semaphore is taken, it starts a 5s timer with FreeRTOS function.
 // Timer calls automatically the timer callback that releases the sempahore.
-// Claude AI was used to help in figuring out the logic for this timed MUTEX. Implementation is by me. -I.L.
+// Claude AI was used to help in figuring out the caveats for this timed MUTEX. Implementation is by -I.L.
 // BaseType_t is the FreeRTOS "base" type for messaging if a function was success or not (pdTRUE / pdFALSE).
 // If the timed mutex is taken and another task tries to use it, zero wait time but FALSE is returned.
 BaseType_t cooldown_semaphore_take(void){
@@ -99,12 +99,13 @@ BaseType_t cooldown_semaphore_take(void){
 	}
 }
 
+// Callback function for the FreeRTOS timer instance.
+// This gives the cooldown semaphore after 5s time interval (if not resetted.)
 void cooldown_timer_callback(TimerHandle_t cooldown_timer){
 	xSemaphoreGive(cooldown_SEMAPHORE);
 	return;
 }
 
-// static uint32_t cooldown_flag = false;
 
 void Button_Handler(void)
 {
@@ -148,10 +149,8 @@ void Button_Handler(void)
 			xil_printf("\r\n\n");
 			xil_printf("System mode changed to: ");
 
-			// ELSE WE OPERATE INSIDE THE MODES:
-		}
-		else
-		{
+		// ELSE WE OPERATE INSIDE THE MODES:
+		}	else	{
 
 			switch (ui_local_mode)
 			{
