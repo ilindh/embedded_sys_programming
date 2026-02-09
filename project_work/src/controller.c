@@ -297,14 +297,17 @@ void control_task(void *pvParameters){
 		float u_meas = getPlantOutputVoltage();
 		// Reset = 0 (final parameter)
 
-		// Get motherfucker
 		SystemMode_t current_mode = getSystemMode();
 
 		if(current_mode == MODE_MODULATION){
+			// Call the reentrant PID function, pass it the plant voltage, target voltage, PID parameters and controller state structure
+			// Write the output to the static controller output voltage variable via MUTEX protection.
 			setControllerOutputVoltage(PID_controller(u_meas, u_ref, Kd, Ki, Kp, 0, &controller_state));
 		} else {
+			// IF WE GET OUT OF MODULATION:
 			// ZERO THE SYSTEM!!
 			PID_controller(0,0,0,0,0,1, &controller_state);
+			// ALWAYS FORCE CONTROLLER OUTPUT DIRECTLY TO ZERO!
 			setControllerOutputVoltage(0);
 		}
 
