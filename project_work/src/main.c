@@ -108,6 +108,8 @@
 // Custom header files:
 #include "controller.h"
 #include "plant.h"
+#include "setup_btn.h"
+#include "timer_setup.h"
 #include "ui_control.h"
 #include "uart_ui.h"
 #include "system_params.h"
