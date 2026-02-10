@@ -49,6 +49,7 @@ void PushButtons_Intr_Handler(void *data)
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     // create a notify to ui_control task that will handle the necessary operations
+    // Change to this tasknotify method allows for the button ISR to be shorter, suggestion for this implementation came from Claude AI. Implementation is by -R.M.
 	xTaskNotifyFromISR(ui_control_task_handle, button_states, eSetBits, &xHigherPriorityTaskWoken);
     XGpio_InterruptClear(&BTNS_SWTS,0xF);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

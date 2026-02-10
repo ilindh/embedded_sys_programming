@@ -351,6 +351,10 @@ void control_task(void *pvParameters){
 /// @brief This is the PID controller function
 /// @param plant voltage, ref voltage, Kp, Ki, Kd, ref, reset, PID state structure
 /// @return PI controller output
+// This function was refactored couple days before the return to be reentrant and to use the
+// controller state struct to store the state of the controller.
+// This was done due to input from course assistant in a short meeting.
+// Help with the refactoring came from Claude AI, but the implementation is by -R.M.
 float PID_controller(float u_meas, float u_ref, float Kd, float Ki, float Kp, uint32_t reset, PIDControllerState_t *state){
 
 	// If reset command sent, reset all!

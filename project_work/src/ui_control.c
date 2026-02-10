@@ -41,6 +41,9 @@ static uint32_t ulNotificationValue;
 // Target voltage for step changes
 static float tgt = 0;
 
+
+// Claude AI was used to help in figuring out the implementation of system mode changes and these getSystemMode and setSystemMode
+// Also, the base for buttons got help from Claude AI. Implementation is by -R.M.
 /// @brief This function allows for retrieving the data with MUTEXes implemented.
 SystemMode_t getSystemMode(void)
 {
@@ -120,6 +123,7 @@ void Button_Handler(void)
 
 	// IF THERE IS A BUTTON INTERRUPT ACTIVE:
 	// NotificationValue contains the button that has caused the interrupt.
+	// Change to this tasknotify method allows for the button ISR to be shorter, suggestion for this implementation came from Claude AI. Implementation is by -R.M.
 	if (xTaskNotifyWait(0x00, 0xFFFFFFFF, &ulNotificationValue, 0) == pdTRUE)
 	{
 		// IF parameter semaphore is not taken, we can change params.
@@ -231,9 +235,9 @@ void ui_control_task(void *pvParameters)
 	xLastWakeTime = xTaskGetTickCount();
 
 	AXI_LED_TRI = 0; // Set all LEDs as output
-	AXI_LED_DATA = LED_MODE_CONFIG;
+	AXI_LED_DATA = LED_MODE_CONFIG; // Start with CONFIG mode LED on
 
-	UART_SendHelp();
+	UART_SendHelp(); // Send help message on startup
 
 	for (;;)
 	{

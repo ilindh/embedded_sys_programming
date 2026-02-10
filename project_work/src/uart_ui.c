@@ -64,6 +64,11 @@ void SetupUART(void)
 /// @brief Receive one character from UART interface receive FIFO
 char uart_receive(void)
 {
+	/*
+	* This code snippet is from Ex4_2023.pdf
+	*  - R.M.
+	*/
+
 	if ((UART_STATUS & XUARTPS_SR_RXEMPTY) == XUARTPS_SR_RXEMPTY)
 	{
 		return 0;
@@ -93,6 +98,8 @@ void UART_SendHelp(void)
 
 /// @brief Execute a command received via UART
 /// @param cmd Command string
+// This functions parses the command and executes it. It also handles blocking of buttons when in config mode, and unblocking when exiting config mode. 
+// The bassi of the command parsing was done with the help of Claude AI, but the implementation is by -R.M.
 static void UART_ExecuteCommand(char *cmd)
 {
 	// Local variables
@@ -319,6 +326,7 @@ static void UART_ExecuteCommand(char *cmd)
 	}
 }
 
+// This function processes UART input by reading characters, buffering them, and executing commands when a newline is received.
 void UART_ProcessInput(void)
 {
 	// Read character from UART
